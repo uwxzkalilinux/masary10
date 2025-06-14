@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vehicle Info Lookup</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    h1 {
+      color: #333;
+    }
+    input, button {
+      padding: 0.5rem;
+      margin: 0.5rem;
+      font-size: 1rem;
+    }
+    .info {
+      margin-top: 1rem;
+      background-color: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 600px;
+    }
+    .info p {
+      margin: 0.5rem 0;
+    }
+    .stats {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>استعلام عن معلومات المركبة</h1>
+  <input type="text" id="uniqueId" placeholder="ادخل الرقم الموحد" />
+  <button onclick="fetchData()">جلب المعلومات</button>
+  <div class="stats" id="stats"></div>
+  <div class="info" id="output"></div>
+
+  <script>
+    async function fetchData() {
+      const id = document.getElementById("uniqueId").value;
+      const output = document.getElementById("output");
+      const stats = document.getElementById("stats");
+      output.innerHTML = "جارٍ التحميل...";
+      stats.innerHTML = "";
+
+      try {
+        const res = await fetch("/api/proxy?unique=" + id); // بدون CORS
+        const data = await res.json();
+
+        if (data.trips && data.trips.length > 0) {
+          let withSonar = [];
+          let withoutSonar = [];
+
+          data.trips.forEach(trip => {
+            const hasSonar = trip.sonarData?.manifests?.length > 0;
+            const infoHTML = `
+              <p><strong>رقم السيارة:</strong> ${trip.truck_number}</p>
+              <p><strong>رقم السائق:</strong> ${trip.driver}</p>
+              <p><strong>رقم الحاوية:</strong> ${trip.container_number}</p>
+              <p><strong>المنافيست:</strong> ${hasSonar ? "بيها صور سونار" : "السيارة مابيهة سونار"}</p>
+              <hr />
+            `;
+            hasSonar ? withSonar.push(infoHTML) : withoutSonar.push(infoHTML);
+          });
+
+          const totalWith = withSonar.length;
+          const totalWithout = withoutSonar.length;
+          stats.innerHTML = `عدد السيارات التي بيها سونار: ${totalWith} | عدد السيارات التي لا تحتوي على سونار: ${totalWithout}`;
+          output.innerHTML = withoutSonar.join('') + withSonar.join('');
+        } else {
+          output.innerHTML = "لا توجد معلومات متاحة لهذا الرقم.";
+        }
+      } catch (error) {
+        output.innerHTML = "حدث خطأ أثناء جلب البيانات: " + error;
+      }
+    }
+  </script>
+</body>
+</html>
