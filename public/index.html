@@ -1,71 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vehicle Info Lookup</title>
-  <style>
-    #randomImage {
-  width: 250px;
-  max-width: 90%;
-  margin-bottom: 1.5rem;
-  border-radius: 10px;
-  display: none;
-  box-shadow: 0 0 8px rgba(0,0,0,0.15);
-}
-
-.container {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  gap: 1rem;
-  width: 100%;
-  max-width: 1200px;
-  margin-top: 2rem;
-  flex-wrap: wrap;
-}
-
-.column {
-  flex: 1;
-  min-width: 280px;
-}
-
-.info {
-  background-color: #fff;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  margin-top: 0.5rem;
-}
-
-h3 {
-  text-align: center;
-  color: #333;
-}
-  </style>
-</head>
 <body>
-  <body>
-  <!-- ✅ الصورة العشوائية بالأعلى -->
-  <img id="randomImage" src="" alt="صورة عشوائية" />
+  <!-- ✅ صورة عشوائية -->
+  <img id="randomImage" src="" alt="صورة عشوائية" style="width: 250px; border-radius: 10px; margin-bottom: 1rem; box-shadow: 0 0 10px rgba(0,0,0,0.15);" />
 
+  <img src="/logo.jpg" alt="شعار الموقع" width="150" />
   <h1>استعلام عن معلومات مساري علي ناصر</h1>
   <input type="text" id="uniqueId" placeholder="ادخل الرقم الموحد" />
   <button onclick="fetchData()">جلب المعلومات</button>
-
   <div class="stats" id="stats"></div>
-
-  <!-- ✅ التقسيم العمودي بين النتائج -->
-  <div class="container">
-    <div class="column">
-      <h3>🚫 سيارات بدون سونار</h3>
-      <div class="info" id="withoutSonar"></div>
+  <div class="columns">
+    <div class="column" id="withoutSonarColumn">
+      <h2>🚫 بدون سونار</h2>
     </div>
-    <div class="column">
-      <h3>✅ سيارات بيها سونار</h3>
-      <div class="info" id="withSonar"></div>
+    <div class="column" id="withSonarColumn">
+      <h2>✅ بيها سونار</h2>
     </div>
   </div>
-  </body>
+
+  <script>
+    function showRandomImage() {
+      const image = document.getElementById("randomImage");
+      const index = Math.floor(Math.random() * 5) + 1;
+      image.src = `/img${index}.jpg`; // تأكد إن الصور موجودة: img1.jpg, img2.jpg, ...
+    }
+
+    async function fetchData() {
+      const id = document.getElementById("uniqueId").value;
+      const stats = document.getElementById("stats");
+      const withSonarCol = document.getElementById("withSonarColumn");
+      const withoutSonarCol = document.getElementById("withoutSonarColumn");
+
+      withSonarCol.innerHTML = "<h2>✅ بيها سونار</h2>";
+      withoutSonarCol.innerHTML = "<h2>🚫 بدون سونار</h2>";
+      stats.innerHTML = "جارٍ التحميل...";
+
+      // ✅ عرض صورة عشوائية
+      showRandomImage();
+
+      try {
+        const res = await fetch("/api/proxy?unique=" + id);
+        const data = await res.json();
+
+        if (data.trips && data.trips.length > 0) {
+          let withSonarCount = 0;
+          let withoutSonarCount = 0;
+
+          data.trips.forEach(trip => {
+            const hasSonar = trip.sonarData?.manifests?.length > 0;
+            const infoHTML = `
+              <p><strong>رقم السيارة:</strong> ${trip.truck_number}</p>
+              <p><strong>رقم السائق:</strong> ${trip.driver}</p>
+              <p><strong>رقم الحاوية:</strong> ${trip.container_number}</p>
+              <hr />
+            `;
+            if (hasSonar) {
+              withSonarCol.innerHTML += infoHTML;
+              withSonarCount++;
+            } else {
+              withoutSonarCol.innerHTML += infoHTML;
+              withoutSonarCount++;
+            }
+          });
+
+          stats.innerHTML = `عدد السيارات التي بيها سونار: ${withSonarCount} | عدد السيارات التي لا تحتوي على سونار: ${withoutSonarCount}`;
+        } else {
+          stats.innerHTML = "لا توجد معلومات متاحة لهذا الرقم.";
+        }
+      } catch (error) {
+        stats.innerHTML = "حدث خطأ أثناء جلب البيانات: " + error;
+      }
+    }
+  </script>
 </body>
-</html>
