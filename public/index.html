@@ -87,31 +87,31 @@
         const data = await res.json();
 
         if (data.trips && data.trips.length > 0) {
-          let withSonarCount = 0;
-          let withoutSonarCount = 0;
+let withSonarCount = 0;
+let withoutSonarCount = 0;
 
-          data.trips.forEach(trip => {
-            const hasSonar = trip.sonarData?.manifests?.length > 0;
-            const infoHTML = `
-              <p><strong>رقم السيارة:</strong> ${trip.truck_number}</p>
-              <p><strong>رقم السائق:</strong> ${trip.driver}</p>
-              <p><strong>رقم الحاوية:</strong> ${trip.container_number}</p>
-              <hr />
-            `;
-            if (hasSonar) {
-              withSonarCol.innerHTML += infoHTML;
-              withSonarCount++;
-            } else {
-              withoutSonarCol.innerHTML += infoHTML;
-              withoutSonarCount++;
-            }
-          });
+data.trips.forEach(trip => {
+  const hasSonar = trip.sonarData?.manifests?.length > 0;
+  const infoHTML = `
+    <p><strong>رقم السيارة:</strong> ${trip.truck_number}</p>
+    <p><strong>رقم السائق:</strong> ${trip.driver}</p>
+    <p><strong>رقم الحاوية:</strong> ${trip.container_number}</p>
+    <hr />
+  `;
+  if (hasSonar) {
+    withSonarCol.innerHTML += infoHTML;
+    withSonarCount++;
+  } else {
+    withoutSonarCol.innerHTML += infoHTML;
+    withoutSonarCount++;
+  }
+});
 
-          // ✅ تغيير الصورة حسب النتائج
-          if (withoutSonarCount > 0) {
-  statusImage.src = "/img2.jpg?" + new Date().getTime(); // وحدة على الأقل ما بيها سونار
+// ✅ نغير الصورة إذا وحدة على الأقل مابيهة سونار
+if (withoutSonarCount > 0) {
+  statusImage.src = "/img2.jpg?" + new Date().getTime();
 } else {
-  statusImage.src = "/img1.jpg?" + new Date().getTime(); // كلهن بيهن سونار
+  statusImage.src = "/img1.jpg?" + new Date().getTime();
 }
 
           stats.innerHTML = `عدد السيارات التي بيها سونار: ${withSonarCount} | عدد السيارات التي لا تحتوي على سونار: ${withoutSonarCount}`;
