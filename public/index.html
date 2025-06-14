@@ -108,11 +108,11 @@
           });
 
           // ✅ تغيير الصورة حسب النتائج
-          if (withSonarCount > 0) {
-            statusImage.src = "/img1.jpeg"; // بيها سونار
-          } else {
-            statusImage.src = "/img2.jpg"; // ما بيها سونار
-          }
+          if (withoutSonarCount > 0) {
+  statusImage.src = "/img2.jpg?" + new Date().getTime(); // وحدة على الأقل ما بيها سونار
+} else {
+  statusImage.src = "/img1.jpg?" + new Date().getTime(); // كلهن بيهن سونار
+}
 
           stats.innerHTML = `عدد السيارات التي بيها سونار: ${withSonarCount} | عدد السيارات التي لا تحتوي على سونار: ${withoutSonarCount}`;
         } else {
