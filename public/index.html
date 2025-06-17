@@ -139,8 +139,8 @@
               <p><strong>رقم السائق:</strong> ${trip.driver}</p>
               <p><strong>رقم الحاوية:</strong> ${trip.container_number}
               <button onclick="navigator.clipboard.writeText('${trip.container_number}')">📋</button></p>
-              ${hasSonar && trip.sonarData?.manifests?.[0]?.sonarPictureLink 
-      ? `<p><a href="${trip.sonarData.manifests[0].sonarPictureLink}" target="_blank">📷 عرض صورة السونار</a></p>` 
+              ${hasSonar && trip.sonarData?.manifests?.[0]?.sonarPictureDayTime 
+      ? `<p><strong>تاريخ دخول السونار:</strong> ${trip.sonarData.manifests[0].sonarPictureDayTime}</p>` 
       : ""}
     <hr />
             `;
