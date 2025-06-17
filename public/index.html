@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -28,14 +29,20 @@
       justify-content: center;
       gap: 2rem;
       margin-top: 2rem;
+      flex-wrap: wrap;
     }
     .column {
-      background-color: #fff;
       padding: 1rem;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       width: 100%;
       max-width: 400px;
+    }
+    #withSonarColumn {
+      background-color: #e8f7e4;
+    }
+    #withoutSonarColumn {
+      background-color: #fff3e0;
     }
     .column h2 {
       color: #0066cc;
@@ -50,16 +57,30 @@
       border-top: 1px solid #ccc;
       margin: 1rem 0;
     }
+    #statusImage {
+      width: 150px;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+    }
+    #loading {
+      display: none;
+      margin-top: 1rem;
+      font-style: italic;
+      color: #777;
+    }
   </style>
 </head>
 <body>
-  <!-- ✅ الصورة تبقى بمكانها، بس تتغير حسب السونار -->
-  <img id="statusImage" src="/imgg.jpg" alt="شعار الموقع" width="150" /> 
+  <img id="statusImage" src="/img1.jpg" alt="صورة الحالة" />
 
   <h1>استعلام عن معلومات مساري علي ناصر</h1>
+  <p id="timestamp" style="font-size: 0.9rem; color: #555;"></p>
   <input type="text" id="uniqueId" placeholder="ادخل الرقم الموحد" />
   <button onclick="fetchData()">جلب المعلومات</button>
+  <button onclick="resetPage()">تفريغ</button>
+  <div id="loading">⏳ جاري جلب البيانات...</div>
   <div class="stats" id="stats"></div>
+
   <div class="columns">
     <div class="column" id="withoutSonarColumn">
       <h2>🚫 بدون سونار</h2>
@@ -70,58 +91,84 @@
   </div>
 
   <script>
+    document.getElementById("timestamp").innerText = 
+      "التاريخ والوقت: " + new Date().toLocaleString("ar-IQ");
+
+    function resetPage() {
+      document.getElementById("uniqueId").value = "";
+      document.getElementById("stats").innerHTML = "";
+      document.getElementById("withSonarColumn").innerHTML = "<h2>✅ بيها سونار</h2>";
+      document.getElementById("withoutSonarColumn").innerHTML = "<h2>🚫 بدون سونار</h2>";
+      document.getElementById("statusImage").src = "/img1.jpg";
+    }
+
     async function fetchData() {
       const id = document.getElementById("uniqueId").value;
       const stats = document.getElementById("stats");
       const withSonarCol = document.getElementById("withSonarColumn");
       const withoutSonarCol = document.getElementById("withoutSonarColumn");
-      const statusImage = document.getElementById("statusImage"); // ✅ نربط الصورة
+      const statusImage = document.getElementById("statusImage");
+      const loading = document.getElementById("loading");
 
       withSonarCol.innerHTML = "<h2>✅ بيها سونار</h2>";
       withoutSonarCol.innerHTML = "<h2>🚫 بدون سونار</h2>";
-      stats.innerHTML = "جارٍ التحميل...";
-      statusImage.src = "/img1.jpg"; // ترجع للوضع الابتدائي بشكل مؤقت
+      stats.innerHTML = "";
+      loading.style.display = "block";
 
       try {
         const res = await fetch("/api/proxy?unique=" + id);
-        const data = await res.json();
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          stats.innerHTML = "⚠️ الرد ليس بصيغة JSON صالحة:<br>" + text;
+          loading.style.display = "none";
+          return;
+        }
 
         if (data.trips && data.trips.length > 0) {
-let withSonarCount = 0;
-let withoutSonarCount = 0;
+          let withSonarCount = 0;
+          let withoutSonarCount = 0;
 
-data.trips.forEach(trip => {
-  const hasSonar = trip.sonarData?.manifests?.length > 0;
-  const infoHTML = `
-    <p><strong>رقم السيارة:</strong> ${trip.truck_number}</p>
-    <p><strong>رقم السائق:</strong> ${trip.driver}</p>
-    <p><strong>رقم الحاوية:</strong> ${trip.container_number}</p>
+          data.trips.forEach(trip => {
+            const hasSonar = trip.sonarData?.manifests?.length > 0;
+            const infoHTML = `
+              <p><strong>رقم السيارة:</strong> ${trip.truck_number}
+              <button onclick="navigator.clipboard.writeText('${trip.truck_number}')">📋</button></p>
+              <p><strong>رقم السائق:</strong> ${trip.driver}</p>
+              <p><strong>رقم الحاوية:</strong> ${trip.container_number}
+              <button onclick="navigator.clipboard.writeText('${trip.container_number}')">📋</button></p>
+              ${hasSonar && trip.sonarData?.manifests?.[0]?.sonarPictureLink 
+      ? `<p><a href="${trip.sonarData.manifests[0].sonarPictureLink}" target="_blank">📷 عرض صورة السونار</a></p>` 
+      : ""}
     <hr />
-  `;
-  if (hasSonar) {
-    withSonarCol.innerHTML += infoHTML;
-    withSonarCount++;
-  } else {
-    withoutSonarCol.innerHTML += infoHTML;
-    withoutSonarCount++;
-  }
-});
+            `;
+            if (hasSonar) {
+              withSonarCol.innerHTML += infoHTML;
+              withSonarCount++;
+            } else {
+              withoutSonarCol.innerHTML += infoHTML;
+              withoutSonarCount++;
+            }
+          });
 
-// ✅ نغير الصورة إذا وحدة على الأقل مابيهة سونار
-if (withoutSonarCount > 0) {
-  statusImage.src = "/img2.jpg?" + new Date().getTime();
-} else {
-  statusImage.src = "/img1.jpeg?" + new Date().getTime();
-}
+          stats.innerHTML = `عدد السيارات التي بيها سونار: ${withSonarCount} | التي لا تحتوي على سونار: ${withoutSonarCount}`;
 
-          stats.innerHTML = `عدد السيارات التي بيها سونار: ${withSonarCount} | عدد السيارات التي لا تحتوي على سونار: ${withoutSonarCount}`;
+          if (withoutSonarCount > 0) {
+            statusImage.src = "/img2.jpg?" + new Date().getTime();
+          } else {
+            statusImage.src = "/img1.jpg?" + new Date().getTime();
+          }
         } else {
           stats.innerHTML = "لا توجد معلومات متاحة لهذا الرقم.";
         }
       } catch (error) {
         stats.innerHTML = "حدث خطأ أثناء جلب البيانات: " + error;
+      } finally {
+        loading.style.display = "none";
       }
     }
   </script>
 </body>
-</html>   
+</html>
