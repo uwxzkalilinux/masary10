@@ -41,9 +41,7 @@ export default async function handler(req, res) {
         data.formatted_sonar_entry = `${day}/${month}/${year} الساعة ${hour}:${minute}`;
       }
 
-      // ✅ تعديل هنا: إرجاع البيانات داخل trips
-      return res.status(200).json({ trips: [data] });
-
+      return res.status(200).json(data);
     } catch (jsonError) {
       return res.status(502).json({
         error: "الرد من السيرفر الخارجي ليس JSON صحيح",
