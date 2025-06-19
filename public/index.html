@@ -1,127 +1,176 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html><html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>استعلام عن معلومات المركبة</title>
+  <title>استعلام معلومات المركبة</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      margin: 0;
       padding: 2rem;
       text-align: center;
+      animation: fadeIn 1s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     h1 {
-      color: #333;
+      color: #003366;
+      font-size: 2rem;
+      margin-bottom: 1rem;
     }
-    input, button {
-      padding: 0.5rem;
-      margin: 0.5rem;
+    input {
+      padding: 0.75rem;
       font-size: 1rem;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      margin: 0.5rem;
+      transition: all 0.3s;
+    }
+    input:focus {
+      border-color: #007BFF;
+      outline: none;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+    button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
     }
     .stats {
       margin-top: 1rem;
       font-weight: bold;
+      font-size: 1.2rem;
+      color: #333;
+      animation: fadeIn 0.8s ease-in;
     }
     .columns {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
       gap: 2rem;
       margin-top: 2rem;
     }
     .column {
-      background-color: #fff;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 100%;
+      background-color: white;
+      padding: 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       max-width: 400px;
+      width: 100%;
+      transition: transform 0.3s;
+    }
+    .column:hover {
+      transform: translateY(-5px);
     }
     .column h2 {
-      color: #0066cc;
+      color: #28a745;
       margin-bottom: 1rem;
     }
     .column p {
-      margin: 0.5rem 0;
       text-align: right;
+      margin: 0.5rem 0;
+      line-height: 1.6;
+      font-size: 0.95rem;
     }
     hr {
       border: none;
-      border-top: 1px solid #ccc;
+      border-top: 1px solid #ddd;
       margin: 1rem 0;
+    }
+    #statusImage {
+      margin: 1rem auto;
+      display: block;
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      transition: transform 0.5s;
+    }
+    #statusImage:hover {
+      transform: scale(1.1);
     }
   </style>
 </head>
 <body>
-  <!-- ✅ الصورة تبقى بمكانها، بس تتغير حسب السونار -->
-  <img id="statusImage" src="/imgg.jpg" alt="شعار الموقع" width="150" /> 
-
-  <h1>استعلام عن معلومات مساري علي ناصر</h1>
+  <img id="statusImage" src="/imgg.jpg" alt="شعار الموقع" width="150" />  <h1>استعلام عن معلومات مساري علي ناصر</h1>
   <input type="text" id="uniqueId" placeholder="ادخل الرقم الموحد" />
-  <button onclick="fetchData()">جلب المعلومات</button>
-  <div class="stats" id="stats"></div>
-  <div class="columns">
+  <button onclick="fetchData()">جلب المعلومات</button>  <div class="stats" id="stats"></div>  <div class="columns">
     <div class="column" id="withoutSonarColumn">
       <h2>🚫 بدون سونار</h2>
     </div>
     <div class="column" id="withSonarColumn">
       <h2>✅ بيها سونار</h2>
     </div>
-  </div>
-
-  <script>
+  </div>  <script>
     async function fetchData() {
       const id = document.getElementById("uniqueId").value;
       const stats = document.getElementById("stats");
       const withSonarCol = document.getElementById("withSonarColumn");
       const withoutSonarCol = document.getElementById("withoutSonarColumn");
-      const statusImage = document.getElementById("statusImage"); // ✅ نربط الصورة
+      const statusImage = document.getElementById("statusImage");
+
+      if (!id.trim()) {
+        stats.innerHTML = "يرجى إدخال الرقم الموحد أولاً.";
+        return;
+      }
 
       withSonarCol.innerHTML = "<h2>✅ بيها سونار</h2>";
       withoutSonarCol.innerHTML = "<h2>🚫 بدون سونار</h2>";
       stats.innerHTML = "جارٍ التحميل...";
-      statusImage.src = "/img1.jpg"; // ترجع للوضع الابتدائي بشكل مؤقت
+      statusImage.src = "/img1.jpg";
 
       try {
         const res = await fetch("/api/proxy?unique=" + id);
         const data = await res.json();
 
         if (data.trips && data.trips.length > 0) {
-let withSonarCount = 0;
-let withoutSonarCount = 0;
+          let withSonarCount = 0;
+          let withoutSonarCount = 0;
 
-data.trips.forEach(trip => {
-  const hasSonar = trip.sonarData?.manifests?.length > 0;
-  const infoHTML = `
-    <p><strong>رقم السيارة:</strong> ${trip.truck_number}</p>
-    <p><strong>رقم السائق:</strong> ${trip.driver}</p>
-    <p><strong>رقم الحاوية:</strong> ${trip.container_number}</p>
-    <hr />
-  `;
-  if (hasSonar) {
-    withSonarCol.innerHTML += infoHTML;
-    withSonarCount++;
-  } else {
-    withoutSonarCol.innerHTML += infoHTML;
-    withoutSonarCount++;
-  }
-});
+          data.trips.forEach(trip => {
+            const hasSonar = trip.sonarData?.manifests?.length > 0;
+            const infoHTML = `
+              <p><strong>رقم السيارة:</strong> ${trip.truck_number}</p>
+              <p><strong>رقم السائق:</strong> ${trip.driver}</p>
+              <p><strong>رقم الحاوية:</strong> ${trip.container_number}</p>
+              ${trip.formatted_sonar_entry ? `<p><strong>تاريخ دخول السونار:</strong> ${trip.formatted_sonar_entry}</p>` : ''}
+              <hr />
+            `;
+            if (hasSonar) {
+              withSonarCol.innerHTML += infoHTML;
+              withSonarCount++;
+            } else {
+              withoutSonarCol.innerHTML += infoHTML;
+              withoutSonarCount++;
+            }
+          });
 
-// ✅ نغير الصورة إذا وحدة على الأقل مابيهة سونار
-if (withoutSonarCount > 0) {
-  statusImage.src = "/img2.jpg?" + new Date().getTime();
-} else {
-  statusImage.src = "/img1.jpeg?" + new Date().getTime();
-}
+          if (withoutSonarCount > 0) {
+            statusImage.src = "/img2.jpg?" + new Date().getTime();
+          } else {
+            statusImage.src = "/img1.jpeg?" + new Date().getTime();
+          }
 
-          stats.innerHTML = `عدد السيارات التي بيها سونار: ${withSonarCount} | عدد السيارات التي لا تحتوي على سونار: ${withoutSonarCount}`;
+          stats.innerHTML = `عدد السيارات التي بيها سونار: ${withSonarCount} | عدد التي بدون سونار: ${withoutSonarCount}`;
         } else {
           stats.innerHTML = "لا توجد معلومات متاحة لهذا الرقم.";
         }
       } catch (error) {
-        stats.innerHTML = "حدث خطأ أثناء جلب البيانات: " + error;
+        stats.innerHTML = "حدث خطأ أثناء جلب البيانات: " + error.message;
       }
     }
-  </script>
-</body>
-</html>   
+  </script></body>
+</html>
