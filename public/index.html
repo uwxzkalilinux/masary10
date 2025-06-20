@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>استعلام عن معلومات المركبة</title>
   <style>
-    /* (نفس CSS السابق تمامًا) */
     body {
       font-family: 'Arial', sans-serif;
       background-color: #f4f4f9;
@@ -37,6 +36,7 @@
       border: none;
       cursor: pointer;
       transition: background-color 0.3s ease, transform 0.2s ease;
+      border-radius: 8px;
     }
     button:hover {
       background-color: #1c5980;
@@ -89,15 +89,30 @@
       user-select: none;
     }
     .status.success {
-      color: #27ae60; /* أخضر */
+      color: #27ae60;
     }
     .status.danger {
-      color: #c0392b; /* أحمر */
+      color: #c0392b;
     }
     .card p {
       margin: 0.3rem 0;
       font-size: 1rem;
       user-select: text;
+    }
+    #logoutBtn {
+      margin-top: 1rem;
+      background-color: #c0392b;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    #logoutBtn:hover {
+      background-color: #992d22;
+      transform: scale(1.05);
     }
   </style>
 </head>
@@ -106,6 +121,7 @@
   <h1>استعلام عن معلومات مساري علي ناصر</h1>
   <input type="text" id="uniqueId" placeholder="ادخل الرقم الموحد" />
   <button onclick="fetchData()">جلب المعلومات</button>
+  <button id="logoutBtn" onclick="logout()">تسجيل خروج</button>
 
   <div class="stats" id="stats"></div>
 
@@ -119,12 +135,17 @@
   </div>
 
   <script>
-    // التحقق من تسجيل الدخول - لو ما مسجل يروح للصفحة login.html
+    // تحقق من تسجيل الدخول
     document.addEventListener('DOMContentLoaded', () => {
       if (localStorage.getItem('loggedIn') !== 'true') {
         window.location.href = 'login.html';
       }
     });
+
+    function logout() {
+      localStorage.removeItem('loggedIn');
+      window.location.href = 'login.html';
+    }
 
     async function fetchData() {
       const id = document.getElementById("uniqueId").value.trim();
