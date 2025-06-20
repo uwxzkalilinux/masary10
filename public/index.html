@@ -2,164 +2,182 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>استعلام معلومات المركبة</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>استعلام عن معلومات المركبة</title>
   <style>
-    * { box-sizing: border-box; }
     body {
-      font-family: 'Cairo', sans-serif;
-      background: linear-gradient(to right, #eef2f3, #8e9eab);
-      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f9;
       padding: 2rem;
       text-align: center;
-      animation: fadeIn 1s ease-in;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      min-height: 100vh;
+      margin: 0;
     }
     h1 {
-      color: #003366;
-      font-size: 2rem;
+      color: #333;
       margin-bottom: 1rem;
     }
-    input {
-      padding: 0.75rem;
-      font-size: 1rem;
-      border: 2px solid #ccc;
-      border-radius: 8px;
+    input, button {
+      padding: 0.75rem 1rem;
       margin: 0.5rem;
-      transition: all 0.3s;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      transition: border-color 0.3s ease;
     }
     input:focus {
-      border-color: #007BFF;
       outline: none;
+      border-color: #2980b9;
+      box-shadow: 0 0 8px rgba(41, 128, 185, 0.3);
     }
     button {
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      background-color: #007BFF;
+      background-color: #2980b9;
       color: white;
       border: none;
-      border-radius: 8px;
       cursor: pointer;
-      transition: transform 0.2s, background-color 0.3s;
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
     button:hover {
-      background-color: #0056b3;
+      background-color: #1c5980;
       transform: scale(1.05);
     }
     .stats {
       margin-top: 1rem;
       font-weight: bold;
-      font-size: 1.2rem;
-      color: #333;
-      animation: fadeIn 0.8s ease-in;
+      min-height: 24px;
     }
     .columns {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
       gap: 2rem;
       margin-top: 2rem;
+      flex-wrap: wrap;
     }
     .column {
-      background-color: white;
-      padding: 1.5rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      max-width: 400px;
+      background-color: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       width: 100%;
-      transition: transform 0.3s;
-    }
-    .column:hover {
-      transform: translateY(-5px);
+      max-width: 450px;
+      min-height: 300px;
+      box-sizing: border-box;
     }
     .column h2 {
-      color: #28a745;
+      color: #0066cc;
       margin-bottom: 1rem;
-      font-size: 1.25rem;
+      user-select: none;
     }
-    .column p {
-      text-align: right;
-      margin: 0.5rem 0;
-      line-height: 1.6;
-      font-size: 0.95rem;
-    }
-    hr {
-      border: none;
-      border-top: 1px solid #ddd;
+    .card {
+      background-color: #fafafa;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 1rem;
       margin: 1rem 0;
+      text-align: right;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: default;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+    .status {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      user-select: none;
+    }
+    .status.success {
+      color: #27ae60; /* أخضر */
+    }
+    .status.danger {
+      color: #c0392b; /* أحمر */
+    }
+    .card p {
+      margin: 0.3rem 0;
+      font-size: 1rem;
+      user-select: text;
     }
   </style>
 </head>
 <body>
-  <h1><i class="fas fa-car"></i> استعلام عن معلومات مساري علي ناصر</h1>
+
+  <h1>استعلام عن معلومات مساري علي ناصر</h1>
   <input type="text" id="uniqueId" placeholder="ادخل الرقم الموحد" />
-  <button onclick="fetchData()"><i class="fas fa-search"></i> جلب المعلومات</button>
+  <button onclick="fetchData()">جلب المعلومات</button>
+
   <div class="stats" id="stats"></div>
 
   <div class="columns">
     <div class="column" id="withoutSonarColumn">
-      <h2><i class="fas fa-times-circle"></i> بدون سونار</h2>
+      <h2>🚫 بدون سونار</h2>
     </div>
     <div class="column" id="withSonarColumn">
-      <h2><i class="fas fa-check-circle"></i> بيها سونار</h2>
+      <h2>✅ بيها سونار</h2>
     </div>
   </div>
 
   <script>
-     if (localStorage.getItem('loggedIn') !== 'true') {
-    window.location.href = 'login.html';
-  }
+    if (localStorage.getItem('loggedIn') !== 'true') {
+      window.location.href = 'login.html';
+    }
+
     async function fetchData() {
-      const id = document.getElementById("uniqueId").value;
+      const id = document.getElementById("uniqueId").value.trim();
       const stats = document.getElementById("stats");
       const withSonarCol = document.getElementById("withSonarColumn");
       const withoutSonarCol = document.getElementById("withoutSonarColumn");
 
-      if (!id.trim()) {
-        stats.innerHTML = "يرجى إدخال الرقم الموحد أولاً.";
+      withSonarCol.innerHTML = "<h2>✅ بيها سونار</h2>";
+      withoutSonarCol.innerHTML = "<h2>🚫 بدون سونار</h2>";
+      stats.textContent = "جارٍ التحميل...";
+
+      if (!id) {
+        stats.textContent = "يرجى إدخال الرقم الموحد.";
         return;
       }
 
-      withSonarCol.innerHTML = "<h2><i class='fas fa-check-circle'></i> بيها سونار</h2>";
-      withoutSonarCol.innerHTML = "<h2><i class='fas fa-times-circle'></i> بدون سونار</h2>";
-      stats.innerHTML = "<i class='fas fa-spinner fa-spin'></i> جارٍ التحميل...";
-
       try {
-        const res = await fetch("/api/proxy?unique=" + id);
+        const res = await fetch("/api/proxy?unique=" + encodeURIComponent(id));
+        if (!res.ok) throw new Error(`خطأ في الاستجابة: ${res.status}`);
+
         const data = await res.json();
 
-        if (data.trips && data.trips.length > 0) {
-          let withSonarCount = 0;
-          let withoutSonarCount = 0;
-
-          data.trips.forEach(trip => {
-            const hasSonar = trip.sonarData?.manifests?.length > 0;
-            const infoHTML = `
-              <p><i class='fas fa-truck'></i> <strong>رقم السيارة:</strong> ${trip.truck_number ?? 'غير متوفر'}</p>
-              <p><i class='fas fa-user'></i> <strong>رقم السائق:</strong> ${trip.driver ?? 'غير متوفر'}</p>
-              <p><i class='fas fa-box'></i> <strong>رقم الحاوية:</strong> ${trip.container_number ?? 'غير متوفر'}</p>
-              <hr />
-            `;
-            if (hasSonar) {
-              withSonarCol.innerHTML += infoHTML;
-              withSonarCount++;
-            } else {
-              withoutSonarCol.innerHTML += infoHTML;
-              withoutSonarCount++;
-            }
-          });
-
-          stats.innerHTML = `عدد السيارات التي بيها سونار: ${withSonarCount} | عدد التي بدون سونار: ${withoutSonarCount}`;
-        } else {
-          stats.innerHTML = "لا توجد معلومات متاحة لهذا الرقم.";
+        if (!data.trips || data.trips.length === 0) {
+          stats.textContent = "لا توجد معلومات متاحة لهذا الرقم.";
+          return;
         }
+
+        let withSonarCount = 0;
+        let withoutSonarCount = 0;
+
+        data.trips.forEach(trip => {
+          const hasSonar = trip.sonarData?.manifests?.length > 0;
+          const statusClass = hasSonar ? 'success' : 'danger';
+          const statusText = hasSonar ? '✅ بيها سونار' : '🚫 بدون سونار';
+
+          const cardHTML = `
+            <div class="card">
+              <div class="status ${statusClass}">${statusText}</div>
+              <p>🚛 <strong>رقم السيارة:</strong> ${trip.truck_number || 'غير متوفر'}</p>
+              <p>🧍‍♂️ <strong>السائق:</strong> ${trip.driver || 'غير متوفر'}</p>
+              <p>📦 <strong>رقم الحاوية:</strong> ${trip.container_number || 'غير متوفر'}</p>
+            </div>
+          `;
+
+          if (hasSonar) {
+            withSonarCol.innerHTML += cardHTML;
+            withSonarCount++;
+          } else {
+            withoutSonarCol.innerHTML += cardHTML;
+            withoutSonarCount++;
+          }
+        });
+
+        stats.textContent = `عدد السيارات التي بيها سونار: ${withSonarCount} | عدد السيارات التي لا تحتوي على سونار: ${withoutSonarCount}`;
+
       } catch (error) {
-        stats.innerHTML = "<i class='fas fa-exclamation-triangle'></i> حدث خطأ أثناء جلب البيانات: " + error;
+        stats.textContent = "حدث خطأ أثناء جلب البيانات: " + error.message;
       }
     }
   </script>
