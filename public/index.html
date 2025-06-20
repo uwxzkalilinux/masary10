@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>استعلام عن معلومات المركبة</title>
   <style>
+    /* (نفس CSS السابق تمامًا) */
     body {
       font-family: 'Arial', sans-serif;
       background-color: #f4f4f9;
@@ -118,11 +119,12 @@
   </div>
 
   <script>
-   if (localStorage.getItem('loggedIn') !== 'true') {
-  window.location.href = 'login.html';
-}
-
-
+    // التحقق من تسجيل الدخول - لو ما مسجل يروح للصفحة login.html
+    document.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('loggedIn') !== 'true') {
+        window.location.href = 'login.html';
+      }
+    });
 
     async function fetchData() {
       const id = document.getElementById("uniqueId").value.trim();
