@@ -94,7 +94,6 @@
       }
     }
 
-    // لو مسجل دخول بالفعل، اعد توجيهه للصفحة الرئيسية
     document.addEventListener('DOMContentLoaded', () => {
       if (localStorage.getItem('loggedIn') === 'true') {
         window.location.href = 'index.html';
