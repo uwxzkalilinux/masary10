@@ -118,9 +118,10 @@
   </div>
 
   <script>
-    if (localStorage.getItem('loggedIn') !== 'true') {
-      window.location.href = 'login.html';
-    }
+   if (localStorage.getItem('loggedIn') !== 'true') {
+  window.location.href = 'login.html';
+}
+
 
     async function fetchData() {
       const id = document.getElementById("uniqueId").value.trim();
