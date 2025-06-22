@@ -3,150 +3,155 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>فحص أمر التحميل</title>
+  <title>تطابق أمر التحميل</title>
   <style>
     body {
-      font-family: 'Cairo', sans-serif;
-      background: #f0f4f8;
+      font-family: 'Arial', sans-serif;
+      background-color: #eef2f3;
       padding: 2rem;
       text-align: center;
+      margin: 0;
+      min-height: 100vh;
     }
     h1 {
       color: #2c3e50;
+      margin-bottom: 1rem;
     }
-    input, button {
-      padding: 0.7rem 1rem;
-      margin: 0.5rem;
+    .input-group {
+      margin-bottom: 1rem;
+    }
+    input {
+      padding: 0.75rem 1rem;
       font-size: 1rem;
+      width: 90%;
+      max-width: 400px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      margin: 0.5rem;
     }
     button {
-      background-color: #2980b9;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background-color: #3498db;
       color: white;
       border: none;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
-    .loader {
-      margin-top: 1rem;
-      display: none;
+    button:hover {
+      background-color: #2980b9;
+      transform: scale(1.05);
     }
-    .result {
-      margin-top: 1rem;
-      font-size: 1.2rem;
+    #result {
+      margin-top: 2rem;
+      font-size: 1.1rem;
       font-weight: bold;
     }
-    .result.success {
-      color: green;
+    .matched {
+      color: #27ae60;
     }
-    .result.error {
-      color: red;
+    .not-matched {
+      color: #c0392b;
+    }
+    .loading {
+      font-size: 0.9rem;
+      color: #555;
+      margin-top: 1rem;
     }
     .details {
-      margin-top: 1.5rem;
-      text-align: right;
-      background-color: #fff;
-      padding: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      direction: rtl;
-    }
-    .details img {
       margin-top: 1rem;
-      max-width: 100%;
-      border-radius: 8px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.2);
+      padding: 1rem;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: right;
+      max-width: 600px;
+      margin-inline: auto;
+    }
+    .details p {
+      margin: 0.5rem 0;
     }
   </style>
 </head>
 <body>
-  <h1>فحص أمر التحميل</h1>
-  <input type="text" id="uniqueId" placeholder="الرقم الموحد">
-  <input type="text" id="customsOrder" placeholder="أمر التحميل">
+
+  <h1>تطابق أمر التحميل</h1>
+
+  <div class="input-group">
+    <input type="text" id="uniqueId" placeholder="ادخل الرقم الموحد" />
+    <input type="text" id="customsOrder" placeholder="ادخل أمر التحميل" />
+  </div>
+
   <button onclick="checkOrder()">تحقق</button>
-  <div class="loader" id="loader">⏳ جارٍ التحقق...</div>
-  <div class="result" id="result"></div>
+  <div class="loading" id="loading"></div>
+  <div id="result"></div>
   <div class="details" id="details"></div>
 
   <script>
     async function checkOrder() {
-      const uniqueId = document.getElementById('uniqueId').value.trim();
-      const customsOrder = document.getElementById('customsOrder').value.trim();
-      const resultDiv = document.getElementById('result');
-      const detailsDiv = document.getElementById('details');
-      const loader = document.getElementById('loader');
+      const uniqueId = document.getElementById("uniqueId").value.trim();
+      const customsOrder = document.getElementById("customsOrder").value.trim();
+      const result = document.getElementById("result");
+      const loading = document.getElementById("loading");
+      const details = document.getElementById("details");
 
-      resultDiv.textContent = "";
-      detailsDiv.innerHTML = "";
-      resultDiv.className = "result";
-      loader.style.display = "block";
+      result.textContent = '';
+      details.innerHTML = '';
+      loading.textContent = '🔄 جاري التحقق...';
 
       if (!uniqueId || !customsOrder) {
-        loader.style.display = "none";
-        resultDiv.textContent = "يرجى إدخال الرقم الموحد وأمر التحميل.";
-        resultDiv.classList.add("error");
+        loading.textContent = '';
+        result.innerHTML = '<span class="not-matched">يرجى إدخال الرقم الموحد وأمر التحميل</span>';
         return;
       }
 
       try {
-        const res = await fetch("/api/proxy?unique=" + encodeURIComponent(uniqueId));
+        const res = await fetch(`/api/proxy?unique=${encodeURIComponent(uniqueId)}`);
         const data = await res.json();
-        loader.style.display = "none";
 
-        const trips = data.trips || [];
-        if (trips.length === 0) {
-          resultDiv.textContent = "🚫 لا توجد بيانات.";
-          resultDiv.classList.add("error");
+        if (!data.trips || data.trips.length === 0) {
+          loading.textContent = '';
+          result.innerHTML = '<span class="not-matched">لم يتم العثور على بيانات</span>';
           return;
         }
 
-        const trip = trips[0];
+        const trip = data.trips[0];
         const actualOrder = trip.unique_identifier_customs_number;
-        const matched = actualOrder === customsOrder;
 
-        if (matched) {
-          resultDiv.textContent = "✅ أمر التحميل مطابق.";
-          resultDiv.classList.add("success");
+        if (customsOrder === actualOrder) {
+          result.innerHTML = '<span class="matched">✅ أمر التحميل مطابق</span>';
 
-          // عد السونار
+          // حساب عدد السونار
           let withSonar = 0;
           let withoutSonar = 0;
-          trips.forEach(trip => {
-            if (trip.sonarData?.manifests?.length > 0) {
-              withSonar++;
-            } else {
-              withoutSonar++;
-            }
+          data.trips.forEach(trip => {
+            if (trip.sonarData?.manifests?.length > 0) withSonar++;
+            else withoutSonar++;
           });
 
-          detailsDiv.innerHTML = `
-            <p>🚛 عدد السيارات التي بيها سونار: <strong>${withSonar}</strong></p>
-            <p>🚫 عدد السيارات بدون سونار: <strong>${withoutSonar}</strong></p>
+          details.innerHTML = `
+            <p><strong>عدد السيارات بيها سونار:</strong> ${withSonar}</p>
+            <p><strong>عدد السيارات بدون سونار:</strong> ${withoutSonar}</p>
           `;
         } else {
-          resultDiv.textContent = "❌ أمر التحميل غير مطابق.";
-          resultDiv.classList.add("error");
-
-          const sonar = trip.sonarData?.manifests?.[0];
-          const sonarTime = sonar?.sonarPictureDayTime || 'غير متوفر';
-          const imageUrl = sonar?.sonarPictureLink;
-
-          detailsDiv.innerHTML = `
-            <p>📦 أمر التحميل الصحيح: <strong>${actualOrder || 'غير متوفر'}</strong></p>
-            <p>🧍‍♂️ السائق: <strong>${trip.driver || 'غير متوفر'}</strong></p>
-            <p>🚛 رقم السيارة: <strong>${trip.truck_number || 'غير متوفر'}</strong></p>
-            <p>📦 رقم الحاوية: <strong>${trip.container_number || 'غير متوفر'}</strong></p>
-            <p>🕓 وقت فحص السونار: <strong>${new Date(sonarTime).toLocaleString('ar-EG', { timeZone: 'Asia/Baghdad' })}</strong></p>
-            ${imageUrl ? `<img src="${imageUrl}" alt="صورة السونار" />` : ''}
+          result.innerHTML = '<span class="not-matched">❌ أمر التحميل غير مطابق</span>';
+          details.innerHTML = `
+            <p><strong>أمر التحميل المسجل:</strong> ${actualOrder}</p>
+            <p><strong>اسم السائق:</strong> ${trip.driver_name || 'غير متوفر'}</p>
+            <p><strong>رقم السيارة:</strong> ${trip.truck_number || 'غير متوفر'}</p>
+            <p><strong>رقم الحاوية:</strong> ${trip.container_number || 'غير متوفر'}</p>
+            <p><strong>الحالة:</strong> ${trip.workflow_state || 'غير متوفرة'}</p>
           `;
         }
 
       } catch (err) {
-        loader.style.display = "none";
-        resultDiv.textContent = "❌ حدث خطأ أثناء جلب البيانات: " + err.message;
-        resultDiv.classList.add("error");
+        result.innerHTML = '<span class="not-matched">حدث خطأ أثناء التحقق</span>';
+      } finally {
+        loading.textContent = '';
       }
     }
   </script>
+
 </body>
 </html>
