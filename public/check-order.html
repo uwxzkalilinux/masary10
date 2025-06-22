@@ -6,107 +6,136 @@
   <title>التحقق من أمر التحميل</title>
   <style>
     body {
-      font-family: 'Cairo', sans-serif;
-      background: linear-gradient(to right, #ecf0f1, #bdc3c7);
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      flex-direction: column;
+      min-height: 100vh;
       margin: 0;
-    }
-    .box {
-      background: #fff;
       padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
       text-align: center;
-      width: 100%;
-      max-width: 420px;
     }
-    h2 {
+
+    h1 {
       color: #2c3e50;
-      margin-bottom: 1rem;
+      margin-bottom: 2rem;
     }
+
     input {
-      width: 100%;
+      width: 300px;
+      max-width: 90%;
       padding: 0.75rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
+      margin: 0.5rem 0;
       border-radius: 8px;
+      border: 1px solid #ccc;
       font-size: 1rem;
     }
+
     button {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      background-color: #27ae60;
+      background-color: #2980b9;
       color: white;
       border: none;
+      padding: 0.75rem 1.5rem;
       border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
-    }
-    button:hover {
-      background-color: #219150;
-      transform: scale(1.03);
-    }
-    .result {
       margin-top: 1rem;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1c5980;
+    }
+
+    .result {
+      margin-top: 2rem;
       font-size: 1.2rem;
       font-weight: bold;
+      color: #333;
     }
-    .match { color: #27ae60; }
-    .mismatch { color: #c0392b; }
+
+    .result.success {
+      color: #27ae60;
+    }
+
+    .result.error {
+      color: #c0392b;
+    }
+
+    .loader {
+      display: none;
+      margin-top: 1.5rem;
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #2980b9;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>التحقق من أمر التحميل</h2>
-    <input type="text" id="uniqueId" placeholder="الرقم الموحد">
-    <input type="text" id="orderNumber" placeholder="أمر التحميل">
-    <button onclick="checkMatch()">تحقق</button>
-    <div class="result" id="result"></div>
-  </div>
+
+  <h1>التحقق من أمر التحميل</h1>
+
+  <input type="text" id="uniqueId" placeholder="الرقم الموحد" />
+  <input type="text" id="customsOrder" placeholder="أمر التحميل" />
+  <button onclick="checkOrder()">تحقق</button>
+
+  <div class="loader" id="loader"></div>
+  <div class="result" id="result"></div>
 
   <script>
-    async function checkMatch() {
+    async function checkOrder() {
       const uniqueId = document.getElementById('uniqueId').value.trim();
-      const enteredOrder = document.getElementById('orderNumber').value.trim();
-      const resultBox = document.getElementById('result');
+      const customsOrder = document.getElementById('customsOrder').value.trim();
+      const resultDiv = document.getElementById('result');
+      const loader = document.getElementById('loader');
 
-      if (!uniqueId || !enteredOrder) {
-        resultBox.textContent = \"يرجى إدخال الرقم الموحد وأمر التحميل.\";
-        resultBox.className = \"result mismatch\";
+      resultDiv.textContent = "";
+      resultDiv.className = "result";
+      loader.style.display = "inline-block";
+
+      if (!uniqueId || !customsOrder) {
+        loader.style.display = "none";
+        resultDiv.textContent = "يرجى إدخال كلا الحقلين.";
+        resultDiv.classList.add("error");
         return;
       }
 
-      resultBox.textContent = \"جارٍ التحقق...\";
-      resultBox.className = \"result\";
-
       try {
-        const res = await fetch(`/api/proxy?unique=${encodeURIComponent(uniqueId)}`);
-        const data = await res.json();
+        const response = await fetch("/api/proxy?unique=" + encodeURIComponent(uniqueId));
+        const data = await response.json();
 
-        if (data.trips && data.trips.length > 0) {
-          const trip = data.trips[0];
-          const realOrder = trip.unique_identifier_customs_number || \"\";
+        loader.style.display = "none";
 
-          if (enteredOrder === realOrder) {
-            resultBox.textContent = \"✅ أمر التحميل مطابق\";
-            resultBox.className = \"result match\";
-          } else {
-            resultBox.textContent = `❌ غير مطابق. الأمر المسجل هو: ${realOrder || 'غير متوفر'}`;
-            resultBox.className = \"result mismatch\";
-          }
+        const trip = data.trips?.[0];
+        const actualOrder = trip?.unique_identifier_customs_number;
+
+        if (!actualOrder) {
+          resultDiv.textContent = "لا توجد بيانات لهذا الرقم الموحد.";
+          resultDiv.classList.add("error");
+        } else if (actualOrder === customsOrder) {
+          resultDiv.textContent = "✅ أمر التحميل مطابق.";
+          resultDiv.classList.add("success");
         } else {
-          resultBox.textContent = \"لا توجد بيانات لهذا الرقم.\";
-          resultBox.className = \"result mismatch\";
+          resultDiv.textContent = "❌ أمر التحميل غير مطابق.";
+          resultDiv.classList.add("error");
         }
       } catch (error) {
-        resultBox.textContent = \"حدث خطأ في الاتصال بالخادم.\";
-        resultBox.className = \"result mismatch\";
+        loader.style.display = "none";
+        resultDiv.textContent = "حدث خطأ أثناء التحقق: " + error.message;
+        resultDiv.classList.add("error");
       }
     }
   </script>
+
 </body>
 </html>
