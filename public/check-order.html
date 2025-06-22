@@ -3,139 +3,150 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>التحقق من أمر التحميل</title>
+  <title>فحص أمر التحميل</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(to right, #e0eafc, #cfdef3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      min-height: 100vh;
-      margin: 0;
+      font-family: 'Cairo', sans-serif;
+      background: #f0f4f8;
       padding: 2rem;
       text-align: center;
     }
-
     h1 {
       color: #2c3e50;
-      margin-bottom: 2rem;
     }
-
-    input {
-      width: 300px;
-      max-width: 90%;
-      padding: 0.75rem;
-      margin: 0.5rem 0;
+    input, button {
+      padding: 0.7rem 1rem;
+      margin: 0.5rem;
+      font-size: 1rem;
       border-radius: 8px;
       border: 1px solid #ccc;
-      font-size: 1rem;
     }
-
     button {
       background-color: #2980b9;
       color: white;
       border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
       cursor: pointer;
+    }
+    .loader {
       margin-top: 1rem;
-      font-size: 1rem;
-      transition: background-color 0.3s ease;
+      display: none;
     }
-
-    button:hover {
-      background-color: #1c5980;
-    }
-
     .result {
-      margin-top: 2rem;
+      margin-top: 1rem;
       font-size: 1.2rem;
       font-weight: bold;
-      color: #333;
     }
-
     .result.success {
-      color: #27ae60;
+      color: green;
     }
-
     .result.error {
-      color: #c0392b;
+      color: red;
     }
-
-    .loader {
-      display: none;
+    .details {
       margin-top: 1.5rem;
-      border: 6px solid #f3f3f3;
-      border-top: 6px solid #2980b9;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
+      text-align: right;
+      background-color: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      direction: rtl;
     }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .details img {
+      margin-top: 1rem;
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.2);
     }
   </style>
 </head>
 <body>
-
-  <h1>التحقق من أمر التحميل</h1>
-
-  <input type="text" id="uniqueId" placeholder="الرقم الموحد" />
-  <input type="text" id="customsOrder" placeholder="أمر التحميل" />
+  <h1>فحص أمر التحميل</h1>
+  <input type="text" id="uniqueId" placeholder="الرقم الموحد">
+  <input type="text" id="customsOrder" placeholder="أمر التحميل">
   <button onclick="checkOrder()">تحقق</button>
-
-  <div class="loader" id="loader"></div>
+  <div class="loader" id="loader">⏳ جارٍ التحقق...</div>
   <div class="result" id="result"></div>
+  <div class="details" id="details"></div>
 
   <script>
     async function checkOrder() {
       const uniqueId = document.getElementById('uniqueId').value.trim();
       const customsOrder = document.getElementById('customsOrder').value.trim();
       const resultDiv = document.getElementById('result');
+      const detailsDiv = document.getElementById('details');
       const loader = document.getElementById('loader');
 
       resultDiv.textContent = "";
+      detailsDiv.innerHTML = "";
       resultDiv.className = "result";
-      loader.style.display = "inline-block";
+      loader.style.display = "block";
 
       if (!uniqueId || !customsOrder) {
         loader.style.display = "none";
-        resultDiv.textContent = "يرجى إدخال كلا الحقلين.";
+        resultDiv.textContent = "يرجى إدخال الرقم الموحد وأمر التحميل.";
         resultDiv.classList.add("error");
         return;
       }
 
       try {
-        const response = await fetch("/api/proxy?unique=" + encodeURIComponent(uniqueId));
-        const data = await response.json();
-
+        const res = await fetch("/api/proxy?unique=" + encodeURIComponent(uniqueId));
+        const data = await res.json();
         loader.style.display = "none";
 
-        const trip = data.trips?.[0];
-        const actualOrder = trip?.unique_identifier_customs_number;
-
-        if (!actualOrder) {
-          resultDiv.textContent = "لا توجد بيانات لهذا الرقم الموحد.";
+        const trips = data.trips || [];
+        if (trips.length === 0) {
+          resultDiv.textContent = "🚫 لا توجد بيانات.";
           resultDiv.classList.add("error");
-        } else if (actualOrder === customsOrder) {
+          return;
+        }
+
+        const trip = trips[0];
+        const actualOrder = trip.unique_identifier_customs_number;
+        const matched = actualOrder === customsOrder;
+
+        if (matched) {
           resultDiv.textContent = "✅ أمر التحميل مطابق.";
           resultDiv.classList.add("success");
+
+          // عد السونار
+          let withSonar = 0;
+          let withoutSonar = 0;
+          trips.forEach(trip => {
+            if (trip.sonarData?.manifests?.length > 0) {
+              withSonar++;
+            } else {
+              withoutSonar++;
+            }
+          });
+
+          detailsDiv.innerHTML = `
+            <p>🚛 عدد السيارات التي بيها سونار: <strong>${withSonar}</strong></p>
+            <p>🚫 عدد السيارات بدون سونار: <strong>${withoutSonar}</strong></p>
+          `;
         } else {
           resultDiv.textContent = "❌ أمر التحميل غير مطابق.";
           resultDiv.classList.add("error");
+
+          const sonar = trip.sonarData?.manifests?.[0];
+          const sonarTime = sonar?.sonarPictureDayTime || 'غير متوفر';
+          const imageUrl = sonar?.sonarPictureLink;
+
+          detailsDiv.innerHTML = `
+            <p>📦 أمر التحميل الصحيح: <strong>${actualOrder || 'غير متوفر'}</strong></p>
+            <p>🧍‍♂️ السائق: <strong>${trip.driver || 'غير متوفر'}</strong></p>
+            <p>🚛 رقم السيارة: <strong>${trip.truck_number || 'غير متوفر'}</strong></p>
+            <p>📦 رقم الحاوية: <strong>${trip.container_number || 'غير متوفر'}</strong></p>
+            <p>🕓 وقت فحص السونار: <strong>${new Date(sonarTime).toLocaleString('ar-EG', { timeZone: 'Asia/Baghdad' })}</strong></p>
+            ${imageUrl ? `<img src="${imageUrl}" alt="صورة السونار" />` : ''}
+          `;
         }
-      } catch (error) {
+
+      } catch (err) {
         loader.style.display = "none";
-        resultDiv.textContent = "حدث خطأ أثناء التحقق: " + error.message;
+        resultDiv.textContent = "❌ حدث خطأ أثناء جلب البيانات: " + err.message;
         resultDiv.classList.add("error");
       }
     }
   </script>
-
 </body>
 </html>
