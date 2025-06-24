@@ -11,7 +11,7 @@
 
   <div class="w-full max-w-4xl mx-auto">
     <div class="flex justify-between items-center w-full mb-6 animate-fade-in">
-      <h1 class="text-3xl font-bold text-gray-800">👀 استعلام عن معلومات مساري علي ناصر
+      <h1 class="text-3xl font-bold text-gray-800">👀 استعلام عن معلومات مساري علي ناصر</h1>
     </div>
 
     <div class="w-full bg-white p-6 rounded-2xl shadow-lg animate-fade-in-up">
@@ -42,11 +42,13 @@
     </div>
 
     <div class="grid md:grid-cols-2 gap-6 mt-8 w-full">
-      <div class="bg-white rounded-2xl shadow-md p-4 animate-fade-in-up" id="withSonarColumn">
-        <h2 class="text-xl font-bold text-green-600 mb-4">✅ بيها سونار</h2>
-      </div>
-      <div class="bg-white rounded-2xl shadow-md p-4 animate-fade-in-up" id="withoutSonarColumn">
+      <!-- بدون سونار على اليسار -->
+      <div class="bg-white rounded-2xl shadow-md p-4 animate-fade-in-up order-2 md:order-1" id="withoutSonarColumn">
         <h2 class="text-xl font-bold text-red-600 mb-4">🚫 بدون سونار</h2>
+      </div>
+      <!-- بيها سونار على اليمين -->
+      <div class="bg-white rounded-2xl shadow-md p-4 animate-fade-in-up order-1 md:order-2" id="withSonarColumn">
+        <h2 class="text-xl font-bold text-green-600 mb-4">✅ بيها سونار</h2>
       </div>
     </div>
   </div>
