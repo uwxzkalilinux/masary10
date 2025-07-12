@@ -3,101 +3,679 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>تسجيل الدخول</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
+  <title>SYSTEM ACCESS TERMINAL - استعلام عن معلومات المركبة</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Courier+Prime&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'Cairo', sans-serif;
-      background: linear-gradient(to right, #bdc3c7, #2c3e50);
+      font-family: 'Orbitron', monospace;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+      min-height: 100vh;
+      color: #00ff41;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Matrix Rain Effect */
+    .matrix-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.1;
+    }
+
+    .matrix-char {
+      position: absolute;
+      font-family: 'Courier Prime', monospace;
+      font-size: 14px;
+      color: #00ff41;
+      animation: matrix-fall linear infinite;
+    }
+
+    @keyframes matrix-fall {
+      0% {
+        transform: translateY(-100vh);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh);
+        opacity: 0;
+      }
+    }
+
+    /* Glitch Effect */
+    .glitch {
+      position: relative;
+      animation: glitch-main 2s infinite;
+    }
+
+    @keyframes glitch-main {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
+    }
+
+    /* Neon Glow Effects */
+    .neon-text {
+      color: #00ff41;
+      text-shadow: 
+        0 0 5px #00ff41,
+        0 0 10px #00ff41,
+        0 0 20px #00ff41,
+        0 0 40px #00ff41;
+      animation: neon-flicker 2s infinite alternate;
+    }
+
+    @keyframes neon-flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Terminal Header */
+    .terminal-header {
+      background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+      border: 2px solid #00ff41;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 30px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 
+        0 0 30px rgba(0, 255, 65, 0.3),
+        inset 0 0 30px rgba(0, 255, 65, 0.1);
+    }
+
+    .terminal-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+      animation: scan-line 3s linear infinite;
+    }
+
+    @keyframes scan-line {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .terminal-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .terminal-subtitle {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #00ccff;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Control Panel */
+    .control-panel {
+      background: linear-gradient(135deg, #0e1419 0%, #1a1a2e 100%);
+      border: 2px solid #00ccff;
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+      position: relative;
+      box-shadow: 
+        0 0 30px rgba(0, 204, 255, 0.3),
+        inset 0 0 30px rgba(0, 204, 255, 0.1);
+    }
+
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .cyber-input {
+      flex: 1;
+      min-width: 250px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid #00ff41;
+      border-radius: 10px;
+      padding: 15px;
+      color: #00ff41;
+      font-family: 'Orbitron', monospace;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .cyber-input:focus {
+      outline: none;
+      border-color: #00ccff;
+      box-shadow: 
+        0 0 20px rgba(0, 204, 255, 0.5),
+        inset 0 0 20px rgba(0, 204, 255, 0.1);
+      transform: scale(1.02);
+    }
+
+    .cyber-input::placeholder {
+      color: #00ff41;
+      opacity: 0.7;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .cyber-btn {
+      background: linear-gradient(135deg, #00ff41 0%, #00ccff 100%);
+      border: none;
+      border-radius: 10px;
+      padding: 15px 30px;
+      color: #000;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      min-width: 150px;
+    }
+
+    .cyber-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 
+        0 10px 20px rgba(0, 255, 65, 0.4),
+        0 0 30px rgba(0, 255, 65, 0.6);
+    }
+
+    .cyber-btn:active {
+      transform: translateY(-1px);
+    }
+
+    .cyber-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: left 0.5s;
+    }
+
+    .cyber-btn:hover::before {
+      left: 100%;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ff0040 0%, #ff4081 100%);
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      box-shadow: 
+        0 10px 20px rgba(255, 0, 64, 0.4),
+        0 0 30px rgba(255, 0, 64, 0.6);
+    }
+
+    /* Stats Display */
+    .stats-display {
+      text-align: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 2px solid #00ff41;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stats-display::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.2), transparent);
+      animation: stats-scan 2s linear infinite;
+    }
+
+    @keyframes stats-scan {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    /* Loading Spinner */
+    .cyber-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(0, 255, 65, 0.3);
+      border-radius: 50%;
+      border-top-color: #00ff41;
+      animation: spin 1s ease-in-out infinite;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Data Columns */
+    .data-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 30px;
+    }
+
+    .data-column {
+      background: linear-gradient(135deg, #0e1419 0%, #1a1a2e 100%);
+      border: 2px solid #00ff41;
+      border-radius: 15px;
+      padding: 25px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .data-column.sonar-active {
+      border-color: #00ff41;
+      box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+    }
+
+    .data-column.sonar-inactive {
+      border-color: #ff0040;
+      box-shadow: 0 0 30px rgba(255, 0, 64, 0.3);
+    }
+
+    .column-header {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .data-card {
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid #00ff41;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 15px;
+      position: relative;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .data-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 255, 65, 0.2);
+    }
+
+    .data-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .data-card:hover::before {
+      left: 100%;
+    }
+
+    .card-status {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
+      gap: 10px;
     }
-    .login-box {
-      background-color: white;
-      padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-      transition: transform 0.3s ease;
+
+    .card-info {
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    .login-box:hover {
-      transform: translateY(-5px);
+
+    .info-icon {
+      color: #00ccff;
+      width: 20px;
     }
-    h2 {
-      margin-bottom: 1rem;
-      color: #2c3e50;
+
+    /* Hidden class */
+    .hidden {
+      display: none;
     }
-    input {
-      width: 100%;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .data-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .input-group {
+        flex-direction: column;
+      }
+      
+      .cyber-input {
+        min-width: 100%;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+      
+      .cyber-btn {
+        width: 100%;
+      }
+      
+      .terminal-title {
+        font-size: 2rem;
+      }
     }
-    input:focus {
-      border-color: #2980b9;
-      box-shadow: 0 0 8px rgba(41, 128, 185, 0.2);
-      outline: none;
+
+    /* Typing Effect */
+    .typing-effect {
+      overflow: hidden;
+      border-right: 3px solid #00ff41;
+      white-space: nowrap;
+      animation: typing 3s steps(30, end), blink-caret 1s step-end infinite;
     }
-    button {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      background-color: #2980b9;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
     }
-    button:hover {
-      background-color: #1c5980;
-      transform: scale(1.03);
-    }
-    .error {
-      color: red;
-      margin-top: 1rem;
-      min-height: 24px;
+
+    @keyframes blink-caret {
+      from, to { border-color: transparent; }
+      50% { border-color: #00ff41; }
     }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h2>تسجيل الدخول</h2>
-    <input type="text" id="username" placeholder="اسم المستخدم" autocomplete="username" />
-    <input type="password" id="password" placeholder="كلمة المرور" autocomplete="current-password" />
-    <button onclick="login()">دخول</button>
-    <div class="error" id="error"></div>
+  <div class="matrix-bg" id="matrixBg"></div>
+  
+  <div class="container">
+    <div class="terminal-header">
+      <h1 class="terminal-title neon-text glitch">
+        <i class="fas fa-terminal"></i> SYSTEM ACCESS TERMINAL
+      </h1>
+      <p class="terminal-subtitle typing-effect">استعلام عن معلومات مساري علي ناصر</p>
+    </div>
+
+    <div class="control-panel">
+      <div class="input-group">
+        <input id="uniqueId" class="cyber-input" placeholder="[INPUT] الرقم الموحد" />
+        <input id="searchTerm" class="cyber-input" placeholder="[SEARCH] رقم السيارة أو الحاوية" />
+      </div>
+      <div class="button-group">
+        <button onclick="fetchData()" class="cyber-btn">
+          <i class="fas fa-download"></i> جلب المعلومات
+        </button>
+        <button onclick="searchTrips()" class="cyber-btn">
+          <i class="fas fa-search"></i> بحث متقدم
+        </button>
+        <button onclick="logout()" class="cyber-btn btn-danger">
+          <i class="fas fa-sign-out-alt"></i> تسجيل خروج
+        </button>
+      </div>
+    </div>
+
+    <div id="stats" class="stats-display hidden">
+      <i class="fas fa-chart-line"></i> جاري التحليل...
+    </div>
+
+    <div class="text-center mt-4 hidden" id="spinner">
+      <div class="cyber-spinner"></div>
+      <p class="mt-3 neon-text">جاري الوصول إلى قاعدة البيانات...</p>
+    </div>
+
+    <div class="data-grid">
+      <div class="data-column sonar-inactive" id="withoutSonarColumn">
+        <h2 class="column-header">
+          <i class="fas fa-times-circle" style="color: #ff0040;"></i>
+          بدون سونار
+        </h2>
+      </div>
+      <div class="data-column sonar-active" id="withSonarColumn">
+        <h2 class="column-header">
+          <i class="fas fa-check-circle" style="color: #00ff41;"></i>
+          بيها سونار
+        </h2>
+      </div>
+    </div>
   </div>
 
   <script>
-    const VALID_USER = 'admin';
-    const VALID_PASS = '12345';
-
-    function login() {
-      const user = document.getElementById('username').value.trim();
-      const pass = document.getElementById('password').value.trim();
-      const errorBox = document.getElementById('error');
-
-      if (user === VALID_USER && pass === VALID_PASS) {
-        localStorage.setItem('loggedIn', 'true');
-        window.location.href = 'index.html';
-      } else {
-        errorBox.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة';
+    // Matrix Rain Effect
+    function createMatrixRain() {
+      const matrixBg = document.getElementById('matrixBg');
+      const chars = 'ابتثجحخدذرزسشصضطظعغفقكلمنهويءآأإئؤة01010101';
+      
+      for (let i = 0; i < 50; i++) {
+        const char = document.createElement('div');
+        char.className = 'matrix-char';
+        char.textContent = chars[Math.floor(Math.random() * chars.length)];
+        char.style.left = Math.random() * 100 + '%';
+        char.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        char.style.animationDelay = Math.random() * 2 + 's';
+        matrixBg.appendChild(char);
       }
     }
 
+    // Initialize Matrix Effect
+    createMatrixRain();
+
+    // Authentication Check
     document.addEventListener('DOMContentLoaded', () => {
-      if (localStorage.getItem('loggedIn') === 'true') {
-        window.location.href = 'index.html';
+      // For demo purposes, commenting out the login check
+      // if (localStorage.getItem('loggedIn') !== 'true') {
+      //   window.location.href = 'login.html';
+      // }
+    });
+
+    function logout() {
+      // localStorage.removeItem('loggedIn');
+      alert('تسجيل الخروج - سيتم إعادة التوجيه');
+      // window.location.href = 'login.html';
+    }
+
+    async function fetchData() {
+      await renderTrips();
+    }
+
+    async function searchTrips() {
+      await renderTrips(true);
+    }
+
+    async function renderTrips(isSearch = false) {
+      const id = document.getElementById("uniqueId").value.trim();
+      const searchTerm = document.getElementById("searchTerm").value.trim().toLowerCase();
+      const stats = document.getElementById("stats");
+      const spinner = document.getElementById("spinner");
+      const withSonarCol = document.getElementById("withSonarColumn");
+      const withoutSonarCol = document.getElementById("withoutSonarColumn");
+
+      // Reset columns
+      withSonarCol.innerHTML = '<h2 class="column-header"><i class="fas fa-check-circle" style="color: #00ff41;"></i> بيها سونار</h2>';
+      withoutSonarCol.innerHTML = '<h2 class="column-header"><i class="fas fa-times-circle" style="color: #ff0040;"></i> بدون سونار</h2>';
+      
+      stats.classList.add("hidden");
+      spinner.classList.remove("hidden");
+
+      if (!id || (isSearch && !searchTerm)) {
+        spinner.classList.add("hidden");
+        stats.innerHTML = '<i class="fas fa-exclamation-triangle"></i> يرجى إدخال البيانات المطلوبة';
+        stats.classList.remove("hidden");
+        return;
       }
+
+      try {
+        // Simulating API call with demo data
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const demoData = {
+          trips: [
+            {
+              truck_number: "ABC-123",
+              driver: "أحمد محمد",
+              container_number: "CONT-001",
+              sonarData: { manifests: [{ sonarPictureDayTime: new Date().toISOString() }] }
+            },
+            {
+              truck_number: "XYZ-456",
+              driver: "علي حسن",
+              container_number: "CONT-002",
+              sonarData: { manifests: [] }
+            },
+            {
+              truck_number: "DEF-789",
+              driver: "محمد أحمد",
+              container_number: "CONT-003",
+              sonarData: { manifests: [{ sonarPictureDayTime: new Date().toISOString() }] }
+            }
+          ]
+        };
+
+        let trips = demoData.trips || [];
+        if (isSearch) {
+          trips = trips.filter(trip =>
+            trip.truck_number?.toLowerCase().includes(searchTerm) ||
+            trip.container_number?.toLowerCase().includes(searchTerm)
+          );
+        }
+
+        if (trips.length === 0) {
+          stats.innerHTML = '<i class="fas fa-search"></i> لم يتم العثور على نتائج';
+          stats.classList.remove("hidden");
+          return;
+        }
+
+        let withSonar = 0;
+        let withoutSonar = 0;
+
+        trips.forEach(trip => {
+          const hasSonar = trip.sonarData?.manifests?.length > 0;
+          const sonarDate = trip.sonarData?.manifests?.[0]?.sonarPictureDayTime;
+          const card = document.createElement('div');
+          card.className = 'data-card';
+          card.innerHTML = `
+            <div class="card-status">
+              <i class="fas fa-${hasSonar ? 'check' : 'times'}" style="color: ${hasSonar ? '#00ff41' : '#ff0040'};"></i>
+              ${hasSonar ? 'نشط - سونار متوفر' : 'غير نشط - سونار غير متوفر'}
+            </div>
+            <div class="card-info">
+              <i class="fas fa-truck info-icon"></i>
+              <strong>رقم السيارة:</strong> ${trip.truck_number || 'غير متوفر'}
+            </div>
+            <div class="card-info">
+              <i class="fas fa-user info-icon"></i>
+              <strong>السائق:</strong> ${trip.driver || 'غير متوفر'}
+            </div>
+            <div class="card-info">
+              <i class="fas fa-box info-icon"></i>
+              <strong>رقم الحاوية:</strong> ${trip.container_number || 'غير متوفر'}
+            </div>
+            ${sonarDate ? `<div class="card-info">
+              <i class="fas fa-calendar info-icon"></i>
+              <strong>تاريخ السونار:</strong> ${new Date(sonarDate).toLocaleString('ar-EG')}
+            </div>` : ''}
+          `;
+
+          if (hasSonar) {
+            withSonarCol.appendChild(card);
+            withSonar++;
+          } else {
+            withoutSonarCol.appendChild(card);
+            withoutSonar++;
+          }
+        });
+
+        stats.innerHTML = `
+          <i class="fas fa-chart-pie"></i> 
+          إجمالي النتائج: ${trips.length} | 
+          <span style="color: #00ff41;">✓ ${withSonar}</span> | 
+          <span style="color: #ff0040;">✗ ${withoutSonar}</span>
+        `;
+        stats.classList.remove("hidden");
+      } catch (err) {
+        stats.innerHTML = `<i class="fas fa-exclamation-triangle"></i> خطأ في الاتصال: ${err.message}`;
+        stats.classList.remove("hidden");
+      } finally {
+        spinner.classList.add("hidden");
+      }
+    }
+
+    // Add some cyber sound effects (optional)
+    function playBeep() {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+      
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.1);
+    }
+
+    // Add click sound to buttons
+    document.querySelectorAll('.cyber-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        try {
+          playBeep();
+        } catch (e) {
+          // Ignore audio errors
+        }
+      });
     });
   </script>
 </body>
