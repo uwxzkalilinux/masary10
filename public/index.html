@@ -5,50 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>استعلام عن معلومات المركبة</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/flowbite"></script>
 </head>
-<body class="bg-gradient-to-b from-slate-100 to-slate-200 min-h-screen flex flex-col items-center justify-start py-8 px-4 font-sans">
+<body class="bg-gradient-to-br from-blue-100 via-slate-100 to-purple-200 min-h-screen flex flex-col items-center justify-start py-10 px-4 font-sans">
 
   <div class="w-full max-w-4xl mx-auto">
-    <div class="flex justify-between items-center w-full mb-6 animate-fade-in">
-      <h1 class="text-3xl font-bold text-gray-800">👀 استعلام عن معلومات مساري علي ناصر</h1>
+    <div class="flex justify-between items-center w-full mb-6 animate__animated animate__fadeInDown">
+      <h1 class="text-4xl font-extrabold text-blue-800 tracking-tight drop-shadow-md">🚚 استعلام عن معلومات مساري علي ناصر</h1>
     </div>
 
-    <div class="w-full bg-white p-6 rounded-2xl shadow-lg animate-fade-in-up">
-      <div class="flex flex-col sm:flex-row gap-4 mb-4">
-        <input id="uniqueId" class="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="ادخل الرقم الموحد" />
-        <input id="searchTerm" class="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="ابحث عن رقم السيارة أو الحاوية" />
+    <div class="w-full bg-white p-8 rounded-3xl shadow-2xl backdrop-blur-md bg-opacity-80 animate__animated animate__fadeInUp">
+      <div class="flex flex-col sm:flex-row gap-4 mb-6">
+        <input id="uniqueId" class="flex-1 border-2 border-blue-300 rounded-xl px-5 py-3 text-lg focus:outline-none focus:ring-4 focus:ring-blue-400 transition duration-300 shadow-inner" placeholder="🔢 ادخل الرقم الموحد" />
+        <input id="searchTerm" class="flex-1 border-2 border-green-300 rounded-xl px-5 py-3 text-lg focus:outline-none focus:ring-4 focus:ring-green-400 transition duration-300 shadow-inner" placeholder="🔍 ابحث عن رقم السيارة أو الحاوية" />
       </div>
       <div class="flex flex-col sm:flex-row gap-4">
-        <button onclick="fetchData()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-xl text-lg font-medium transition-all duration-300 shadow-md">
-          جلب المعلومات
+        <button onclick="fetchData()" class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 px-8 rounded-2xl text-lg font-semibold transition transform hover:scale-105 shadow-lg">
+          🚀 جلب المعلومات
         </button>
-        <button onclick="searchTrips()" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-xl text-lg font-medium transition-all duration-300 shadow-md">
-          بحث
+        <button onclick="searchTrips()" class="w-full sm:w-auto bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-white py-3 px-8 rounded-2xl text-lg font-semibold transition transform hover:scale-105 shadow-lg">
+          🔎 بحث
         </button>
-        <button onclick="logout()" class="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded-xl text-lg font-medium transition-all duration-300 shadow-md">
-          تسجيل خروج
+        <button onclick="logout()" class="w-full sm:w-auto bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white py-3 px-8 rounded-2xl text-lg font-semibold transition transform hover:scale-105 shadow-lg">
+          🔒 تسجيل خروج
         </button>
       </div>
     </div>
 
-    <div id="stats" class="text-center mt-4 text-lg font-semibold text-gray-700 animate-fade-in"></div>
+    <div id="stats" class="text-center mt-6 text-lg font-semibold text-gray-800 animate__animated animate__fadeIn"></div>
 
     <div class="flex justify-center mt-4 hidden" id="spinner">
-      <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
       </svg>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-6 mt-8 w-full">
-      <!-- بدون سونار على اليسار -->
-      <div class="bg-white rounded-2xl shadow-md p-4 animate-fade-in-up order-2 md:order-1" id="withoutSonarColumn">
-        <h2 class="text-xl font-bold text-red-600 mb-4">🚫 بدون سونار</h2>
+    <div class="grid md:grid-cols-2 gap-6 mt-10 w-full">
+      <div class="bg-white rounded-3xl shadow-xl p-6 animate__animated animate__fadeInRight order-2 md:order-1" id="withoutSonarColumn">
+        <h2 class="text-2xl font-extrabold text-red-600 mb-4">🚫 بدون سونار</h2>
       </div>
-      <!-- بيها سونار على اليمين -->
-      <div class="bg-white rounded-2xl shadow-md p-4 animate-fade-in-up order-1 md:order-2" id="withSonarColumn">
-        <h2 class="text-xl font-bold text-green-600 mb-4">✅ بيها سونار</h2>
+      <div class="bg-white rounded-3xl shadow-xl p-6 animate__animated animate__fadeInLeft order-1 md:order-2" id="withSonarColumn">
+        <h2 class="text-2xl font-extrabold text-green-600 mb-4">✅ بيها سونار</h2>
       </div>
     </div>
   </div>
@@ -81,8 +80,8 @@
       const withSonarCol = document.getElementById("withSonarColumn");
       const withoutSonarCol = document.getElementById("withoutSonarColumn");
 
-      withSonarCol.innerHTML = '<h2 class="text-xl font-bold text-green-600 mb-4">✅ بيها سونار</h2>';
-      withoutSonarCol.innerHTML = '<h2 class="text-xl font-bold text-red-600 mb-4">🚫 بدون سونار</h2>';
+      withSonarCol.innerHTML = '<h2 class="text-2xl font-extrabold text-green-600 mb-4">✅ بيها سونار</h2>';
+      withoutSonarCol.innerHTML = '<h2 class="text-2xl font-extrabold text-red-600 mb-4">🚫 بدون سونار</h2>';
       stats.textContent = "";
       spinner.classList.remove("hidden");
 
@@ -117,9 +116,9 @@
           const hasSonar = trip.sonarData?.manifests?.length > 0;
           const sonarDate = trip.sonarData?.manifests?.[0]?.sonarPictureDayTime;
           const card = document.createElement('div');
-          card.className = 'bg-gray-50 rounded-xl p-4 mb-4 shadow hover:shadow-lg transition-all duration-300';
+          card.className = 'bg-gradient-to-br from-white via-gray-100 to-slate-200 rounded-2xl p-5 mb-4 shadow-md hover:shadow-2xl transition-all duration-300 animate__animated animate__fadeInUp';
           card.innerHTML = `
-            <div class="text-${hasSonar ? 'green' : 'red'}-600 font-bold mb-2">
+            <div class="text-${hasSonar ? 'green' : 'red'}-600 font-bold text-lg mb-2">
               ${hasSonar ? '✅ بيها سونار' : '🚫 بدون سونار'}
             </div>
             <p><strong>🚛 رقم السيارة:</strong> ${trip.truck_number || 'غير متوفر'}</p>
@@ -145,20 +144,5 @@
       }
     }
   </script>
-
-  <style>
-    @keyframes fade-in {
-      0% { opacity: 0; transform: translateY(10px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-
-    .animate-fade-in {
-      animation: fade-in 0.8s ease forwards;
-    }
-
-    .animate-fade-in-up {
-      animation: fade-in 1s ease-out both;
-    }
-  </style>
 </body>
 </html>
