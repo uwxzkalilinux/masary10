@@ -1,5 +1,5 @@
-export const handler = async (event) => {
-  const unique = event.queryStringParameters.unique;
+export default async function handler(req, res) {
+  const { unique } = req.query;
 
   try {
     const response = await fetch(`http://176.241.95.201:8092/id?unique=${unique}`, {
@@ -14,9 +14,10 @@ export const handler = async (event) => {
     try {
       const data = JSON.parse(text);
 
-      // تنسيق التاريخ إذا موجود
+      // تحويل تاريخ دخول السونار إذا موجود
       if (data.sonar_entry_date) {
         const date = new Date(data.sonar_entry_date);
+
         const options = {
           timeZone: 'Asia/Baghdad',
           day: 'numeric',
@@ -36,24 +37,21 @@ export const handler = async (event) => {
         const hour = parts.find(p => p.type === 'hour')?.value || '';
         const minute = parts.find(p => p.type === 'minute')?.value || '';
 
+        // التنسيق النهائي
         data.formatted_sonar_entry = `${day}/${month}/${year} الساعة ${hour}:${minute}`;
       }
 
-      return {
-        statusCode: 200,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      };
-    } catch {
-      return {
-        statusCode: 502,
-        body: JSON.stringify({ error: "الرد من السيرفر الخارجي ليس JSON صحيح", raw: text }),
-      };
+      return res.status(200).json(data);
+    } catch (jsonError) {
+      return res.status(502).json({
+        error: "الرد من السيرفر الخارجي ليس JSON صحيح",
+        raw: text,
+      });
     }
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "فشل في الاتصال بالسيرفر الخارجي", details: err.message }),
-    };
+    return res.status(500).json({
+      error: "فشل في الاتصال بالسيرفر الخارجي",
+      details: err.message,
+    });
   }
-};
+}
