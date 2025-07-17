@@ -14,10 +14,9 @@ export const handler = async (event) => {
     try {
       const data = JSON.parse(text);
 
-      // تنسيق تاريخ السونار إن وجد
+      // تنسيق التاريخ إذا موجود
       if (data.sonar_entry_date) {
         const date = new Date(data.sonar_entry_date);
-
         const options = {
           timeZone: 'Asia/Baghdad',
           day: 'numeric',
@@ -42,25 +41,19 @@ export const handler = async (event) => {
 
       return {
         statusCode: 200,
-        body: JSON.stringify(data),
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       };
-    } catch (jsonError) {
+    } catch {
       return {
         statusCode: 502,
-        body: JSON.stringify({
-          error: "الرد من السيرفر الخارجي ليس JSON صحيح",
-          raw: text,
-        }),
+        body: JSON.stringify({ error: "الرد من السيرفر الخارجي ليس JSON صحيح", raw: text }),
       };
     }
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: "فشل في الاتصال بالسيرفر الخارجي",
-        details: err.message,
-      }),
+      body: JSON.stringify({ error: "فشل في الاتصال بالسيرفر الخارجي", details: err.message }),
     };
   }
 };
