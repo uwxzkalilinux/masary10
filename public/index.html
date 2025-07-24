@@ -6,109 +6,225 @@
   <title>استعلام عن معلومات المركبة</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/flowbite"></script>
   <style>
     body {
       font-family: 'Cairo', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 2rem 1rem;
-      color: #1a202c;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #f0f0f3;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+    body.dark {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #cbd5e1;
     }
     h1 {
-      color: #f3f4f6;
-      text-shadow: 1px 1px 4px #2d3748;
-    }
-    .btn {
-      transition: all 0.3s ease;
-      cursor: pointer;
+      font-weight: 900;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      text-shadow: 0 0 10px rgba(255 255 255 / 0.6);
       user-select: none;
     }
-    .btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.6);
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(255 255 255 / 0.15);
+      backdrop-filter: blur(15px);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: 0 0 24px rgba(0,0,0,0.3);
+      color: inherit;
+      user-select: none;
+    }
+    input {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border-radius: 14px;
+      border: none;
+      font-size: 1.1rem;
+      outline: none;
+      background: rgba(255 255 255 / 0.3);
+      color: inherit;
+      box-shadow: inset 0 0 8px rgba(255 255 255 / 0.4);
+      transition: box-shadow 0.3s ease;
+    }
+    input::placeholder {
+      color: rgba(255 255 255 / 0.7);
+    }
+    input:focus {
+      box-shadow: 0 0 18px #a29bfe;
+      background: rgba(255 255 255 / 0.6);
+      color: #1f2937;
+    }
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    button {
+      background: linear-gradient(45deg, #6c5ce7, #341f97);
+      color: white;
+      padding: 0.9rem 2rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border-radius: 24px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 25px #6c5ce7cc;
+      transition: all 0.3s ease;
+      user-select: none;
+      flex: 1 1 150px;
+      min-width: 150px;
+    }
+    button:hover {
+      background: linear-gradient(45deg, #341f97, #6c5ce7);
+      box-shadow: 0 12px 30px #341f97cc;
+      transform: scale(1.08);
     }
     #spinner {
-      display: flex;
+      display: none;
+      margin-top: 1.5rem;
       justify-content: center;
-      margin-top: 1rem;
     }
-    /* تصميم الأعمدة */
-    #withSonarColumn {
-      border-left: 4px solid #34d399; /* أخضر */
+    #spinner svg {
+      height: 48px;
+      width: 48px;
+      color: #a29bfe;
+      animation: spin 1.2s linear infinite;
     }
+    @keyframes spin {
+      0% {transform: rotate(0deg);}
+      100% {transform: rotate(360deg);}
+    }
+    #stats {
+      margin-top: 1.5rem;
+      font-size: 1.3rem;
+      font-weight: 600;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(255 255 255 / 0.7);
+      min-height: 30px;
+      user-select: none;
+    }
+    .results-grid {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .card {
+      background: rgba(255 255 255 / 0.3);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      color: inherit;
+      cursor: pointer;
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+      user-select: none;
+    }
+    .card:hover {
+      box-shadow: 0 12px 45px rgba(108, 92, 231, 0.7);
+      transform: scale(1.05);
+    }
+    .card .status {
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 5px rgba(255 255 255 / 0.8);
+    }
+    .card.green {
+      color: #34d399;
+    }
+    .card.red {
+      color: #f87171;
+    }
+    .footer {
+      margin-top: 3rem;
+      font-size: 1rem;
+      text-align: center;
+      color: #d1d5db;
+      user-select: none;
+      letter-spacing: 0.05em;
+    }
+    /* تقسيم اليمين واليسار */
     #withoutSonarColumn {
-      border-right: 4px solid #f87171; /* أحمر */
+      border-right: 5px solid #f87171;
+      min-height: 300px;
+      border-radius: 20px;
+    }
+    #withSonarColumn {
+      border-left: 5px solid #34d399;
+      min-height: 300px;
+      border-radius: 20px;
     }
   </style>
 </head>
 <body>
+  <h1 class="animate__animated animate__fadeInDown">🚚 استعلام عن معلومات مساري علي ناصر</h1>
 
-  <h1 class="text-4xl font-extrabold mb-8 animate__animated animate__fadeInDown">🚚 استعلام عن معلومات مساري علي ناصر</h1>
+  <div class="container animate__animated animate__fadeInUp">
+    <input id="uniqueId" placeholder="🔢 ادخل الرقم الموحد" autocomplete="off" />
 
-  <div class="w-full max-w-4xl bg-white bg-opacity-80 backdrop-blur-md rounded-3xl p-8 shadow-2xl animate__animated animate__fadeInUp">
-    <div class="flex flex-col sm:flex-row gap-4 mb-6">
-      <input id="uniqueId" class="flex-1 border-2 border-blue-400 rounded-xl px-5 py-3 text-lg focus:outline-none focus:ring-4 focus:ring-blue-500 shadow-inner" placeholder="🔢 ادخل الرقم الموحد" />
+    <div class="buttons">
+      <button onclick="fetchData()">🚀 جلب المعلومات</button>
+      <button onclick="toggleTheme()">🌓 تبديل الوضع</button>
+      <button onclick="logout()">🔒 تسجيل خروج</button>
     </div>
-    <div class="flex flex-col sm:flex-row gap-4">
-      <button onclick="fetchData()" class="btn w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-800 text-white py-3 px-8 rounded-2xl text-lg font-semibold shadow-lg">
-        🚀 جلب المعلومات
-      </button>
-      <button onclick="logout()" class="btn w-full sm:w-auto bg-gradient-to-r from-red-600 to-red-800 text-white py-3 px-8 rounded-2xl text-lg font-semibold shadow-lg">
-        🔒 تسجيل خروج
-      </button>
-    </div>
-  </div>
 
-  <div id="spinner" class="hidden mt-6">
-    <svg class="animate-spin h-12 w-12 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-    </svg>
-  </div>
-
-  <div id="stats" class="text-center mt-6 text-lg font-semibold text-white animate__animated"></div>
-
-  <div class="grid md:grid-cols-2 gap-8 mt-10 max-w-4xl w-full">
-    <div id="withoutSonarColumn" class="bg-white rounded-3xl shadow-xl p-6 animate__animated animate__fadeInRight order-2 md:order-1 min-h-[300px]">
-      <h2 class="text-2xl font-extrabold text-red-600 mb-6">🚫 بدون سونار</h2>
+    <div id="spinner" aria-live="polite" aria-busy="true" role="status">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" >
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke-width="4" stroke="currentColor" />
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+      </svg>
     </div>
-    <div id="withSonarColumn" class="bg-white rounded-3xl shadow-xl p-6 animate__animated animate__fadeInLeft order-1 md:order-2 min-h-[300px]">
-      <h2 class="text-2xl font-extrabold text-green-600 mb-6">✅ بيها سونار</h2>
+
+    <div id="stats"></div>
+
+    <div class="results-grid">
+      <div id="withoutSonarColumn">
+        <h2 class="status red">🚫 بدون سونار</h2>
+      </div>
+      <div id="withSonarColumn">
+        <h2 class="status green">✅ بيها سونار</h2>
+      </div>
     </div>
+
+    <div class="footer">تم الإنشاء بواسطة علي ناصر مساري</div>
   </div>
 
 <script>
   function logout() {
+    // لا نخزن حالة تسجيل دخول => كل دخول يطلب تسجيل دخول
     window.location.href = 'login.html';
   }
 
-  async function fetchData() {
-    await renderTrips();
+  function toggleTheme() {
+    document.body.classList.toggle('dark');
   }
 
-  async function renderTrips() {
+  async function fetchData() {
     const id = document.getElementById("uniqueId").value.trim();
     const stats = document.getElementById("stats");
     const spinner = document.getElementById("spinner");
     const withSonarCol = document.getElementById("withSonarColumn");
     const withoutSonarCol = document.getElementById("withoutSonarColumn");
 
-    // إعادة تعيين العرض
-    withSonarCol.innerHTML = '<h2 class="text-2xl font-extrabold text-green-600 mb-6">✅ بيها سونار</h2>';
-    withoutSonarCol.innerHTML = '<h2 class="text-2xl font-extrabold text-red-600 mb-6">🚫 بدون سونار</h2>';
+    withSonarCol.innerHTML = '<h2 class="status green">✅ بيها سونار</h2>';
+    withoutSonarCol.innerHTML = '<h2 class="status red">🚫 بدون سونار</h2>';
     stats.textContent = "";
-    spinner.classList.remove("hidden");
-
     if (!id) {
-      spinner.classList.add("hidden");
-      stats.textContent = "يرجى إدخال الرقم الموحد.";
-      stats.classList.remove('animate__fadeIn');
+      stats.textContent = "⚠️ يرجى إدخال الرقم الموحد.";
       return;
     }
+
+    spinner.style.display = "flex";
+    stats.textContent = "";
 
     try {
       const res = await fetch("/api/proxy?unique=" + encodeURIComponent(id));
@@ -118,7 +234,7 @@
       let trips = data.trips || [];
       if (trips.length === 0) {
         stats.textContent = "🚫 لم يتم العثور على نتائج.";
-        stats.classList.add('animate__fadeIn');
+        spinner.style.display = "none";
         return;
       }
 
@@ -129,11 +245,9 @@
         const hasSonar = trip.sonarData?.manifests?.length > 0;
         const sonarDate = trip.sonarData?.manifests?.[0]?.sonarPictureDayTime;
         const card = document.createElement('div');
-        card.className = 'bg-gradient-to-br from-white via-gray-100 to-slate-200 rounded-2xl p-5 mb-4 shadow-md hover:shadow-2xl transition-all duration-300 animate__animated animate__fadeInUp cursor-pointer';
+        card.className = `card animate__animated animate__fadeInUp ${hasSonar ? 'green' : 'red'}`;
         card.innerHTML = `
-          <div class="text-${hasSonar ? 'green' : 'red'}-600 font-bold text-lg mb-2">
-            ${hasSonar ? '✅ بيها سونار' : '🚫 بدون سونار'}
-          </div>
+          <div class="status">${hasSonar ? '✅ بيها سونار' : '🚫 بدون سونار'}</div>
           <p><strong>🚛 رقم السيارة:</strong> ${trip.truck_number || 'غير متوفر'}</p>
           <p><strong>🧍‍♂️ السائق:</strong> ${trip.driver || 'غير متوفر'}</p>
           <p><strong>📦 رقم الحاوية:</strong> ${trip.container_number || 'غير متوفر'}</p>
@@ -151,14 +265,13 @@
       });
 
       stats.textContent = `📊 النتائج: ${trips.length} — ✅ ${withSonar} | 🚫 ${withoutSonar}`;
-      stats.classList.add('animate__fadeIn');
     } catch (err) {
       stats.textContent = "⚠️ حدث خطأ: " + err.message;
-      stats.classList.add('animate__fadeIn');
     } finally {
-      spinner.classList.add("hidden");
+      spinner.style.display = "none";
     }
   }
 </script>
+
 </body>
 </html>
