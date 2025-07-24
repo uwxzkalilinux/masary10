@@ -5,8 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>استعلام معلومات المركبة</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'Cairo', sans-serif;
@@ -100,7 +100,7 @@
 
       let url = "";
       if (unique) url = `/api/proxy?unique=${unique}`;
-      else if (truck && container) url = `/api/proxy?truck_number=${truck}&container_number=${container}`;
+      else if (comboTruck && comboContainer) url = `/api/proxy?truck_number=${comboTruck}&container_number=${comboContainer}`;
       else if (truck) url = `/api/proxy?truck_number=${truck}`;
       else if (container) url = `/api/proxy?container_number=${container}`;
       else {
@@ -110,6 +110,7 @@
 
       try {
         const res = await fetch(url);
+        if (!res.ok) throw new Error(`خطأ في الاتصال: ${res.status}`);
         const data = await res.json();
 
         if (!Array.isArray(data) || data.length === 0) {
@@ -125,9 +126,7 @@
             <p><strong>اسم السائق:</strong> ${item.driver_name || "—"}</p>
             <p><strong>رقم الحاوية:</strong> ${item.container_number_export || "—"}</p>
             <p><strong>تاريخ دخول السونار:</strong> ${item.sonar_entry_date || "—"}</p>
-            <a href="sonar.html?url=${encodeURIComponent(
-              item.sonar_image_url || ""
-            )}" target="_blank" class="inline-block mt-2 text-blue-400 underline">عرض صورة السونار</a>
+            <a href="sonar.html?url=${encodeURIComponent(item.sonar_image_url || "")}" target="_blank" class="inline-block mt-2 text-blue-400 underline">عرض صورة السونار</a>
           </div>
         `
           )
