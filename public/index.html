@@ -5,17 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>معلومات الرحلات</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'Cairo', sans-serif;
     }
-
     .fade-in {
       animation: fadeIn 0.7s ease-in-out;
     }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -24,36 +21,40 @@
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-4 min-h-screen">
 
-  <div class="max-w-6xl mx-auto space-y-4">
-    <div class="flex flex-wrap gap-2 justify-center sm:justify-between items-center mb-6">
-      <h1 class="text-2xl sm:text-3xl font-bold text-center">استعلام معلومات الرحلة</h1>
+  <div class="max-w-4xl mx-auto space-y-4">
+    <div class="flex flex-wrap gap-2 justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-center w-full sm:w-auto">استعلام معلومات الرحلة</h1>
       <button onclick="logout()"
-              class="bg-red-600 hover:bg-red-700 text-white py-1 px-4 rounded-xl text-sm transition">
+              class="bg-red-600 hover:bg-red-700 text-white py-2 px-5 rounded-xl text-sm transition">
         تسجيل الخروج
       </button>
     </div>
 
-    <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-4 mb-6">
+    <div class="mb-6">
       <input id="unique" type="text" placeholder="الرقم الموحد"
-             class="p-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500" />
-      <input id="carNumber" type="text" placeholder="رقم السيارة"
-             class="p-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500" />
-      <input id="containerNumber" type="text" placeholder="رقم الحاوية"
-             class="p-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500" />
+             class="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 text-lg" />
+    </div>
+
+    <div class="mb-6">
       <button onclick="fetchData()"
-              class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-xl transition">
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl text-lg font-semibold transition transform hover:scale-105 shadow-lg">
         بحث
       </button>
     </div>
 
-    <div id="loading" class="text-center hidden">
-      <div class="text-blue-600 dark:text-blue-400">جاري التحميل...</div>
+    <div id="loading" class="text-center text-blue-600 dark:text-blue-400 hidden mb-6">
+      جاري التحميل...
     </div>
 
     <div class="grid md:grid-cols-2 gap-4" id="results"></div>
+
+    <footer class="text-center mt-10 text-sm text-gray-500 dark:text-gray-400">
+      تم الإنشاء بواسطة علي ناصر مساري
+    </footer>
   </div>
 
   <script>
+    // تحقق من تسجيل الدخول وإعادة التوجيه
     if (!localStorage.getItem("isLoggedIn")) {
       window.location.href = "login.html";
     }
@@ -65,22 +66,21 @@
 
     async function fetchData() {
       const unique = document.getElementById("unique").value.trim();
-      const carNumber = document.getElementById("carNumber").value.trim();
-      const containerNumber = document.getElementById("containerNumber").value.trim();
 
-      const queryParams = new URLSearchParams();
-      if (unique) queryParams.append("unique", unique);
-      if (carNumber) queryParams.append("carNumber", carNumber);
-      if (containerNumber) queryParams.append("containerNumber", containerNumber);
+      if (!unique) {
+        alert("الرجاء إدخال الرقم الموحد");
+        return;
+      }
 
-      const url = `/api/proxy?${queryParams.toString()}`;
+      const url = `/api/proxy?unique=${encodeURIComponent(unique)}`;
       document.getElementById("results").innerHTML = "";
       document.getElementById("loading").classList.remove("hidden");
 
       try {
         const res = await fetch(url);
-        const data = await res.json();
-        renderResults(data);
+        const result = await res.json();
+
+        renderResults(result.data || []);
       } catch (err) {
         alert("فشل في جلب البيانات");
         console.error(err);
@@ -101,7 +101,7 @@
       data.forEach(item => {
         const hasImage = item.sonar_image_url;
         const card = document.createElement("div");
-        card.className = `fade-in p-4 rounded-2xl shadow-xl bg-white dark:bg-gray-800 border dark:border-gray-700 flex flex-col justify-between`;
+        card.className = `fade-in p-5 rounded-2xl shadow-xl bg-white dark:bg-gray-800 border dark:border-gray-700 flex flex-col justify-between`;
 
         card.innerHTML = `
           <div>
@@ -111,10 +111,10 @@
             <p><strong>تاريخ دخول السونار:</strong> ${item.sonar_date || "غير متوفر"}</p>
           </div>
           ${hasImage ? `<button onclick="viewImage('${item.sonar_image_url}')"
-            class="mt-4 bg-green-600 hover:bg-green-700 text-white py-1 px-4 rounded-xl text-sm">عرض صورة السونار</button>` : ""}
+            class="mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-5 rounded-xl text-sm">عرض صورة السونار</button>` : ""}
         `;
 
-        // تصنيف حسب وجود صورة سونار
+        // ترتيب البطاقات حسب وجود صورة السونار
         if (hasImage) {
           container.appendChild(card);
         } else {
@@ -125,8 +125,9 @@
 
     function viewImage(url) {
       const win = window.open("", "_blank");
-      win.document.write(`<img src="${url}" class="w-full h-auto" />`);
+      win.document.write(`<img src="${url}" class="w-full h-auto" alt="صورة السونار"/>`);
     }
   </script>
+
 </body>
 </html>
