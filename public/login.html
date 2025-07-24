@@ -2,124 +2,54 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>تسجيل الدخول</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+  <script>
+    // عند تحميل الصفحة، احذف الجلسة السابقة
+    window.onload = () => {
+      localStorage.removeItem("isLoggedIn");
+    };
+  </script>
   <style>
     body {
       font-family: 'Cairo', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      height: 100vh;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #f0f0f3;
-    }
-    .login-box {
-      background: rgba(255 255 255 / 0.15);
-      backdrop-filter: blur(12px);
-      border-radius: 20px;
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-      padding: 3rem 2.5rem;
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
-      transition: transform 0.3s ease;
-    }
-    .login-box:hover {
-      transform: translateY(-8px);
-    }
-    h2 {
-      margin-bottom: 1.5rem;
-      font-weight: 700;
-      font-size: 2.5rem;
-      text-shadow: 0 0 8px #ffffff88;
-    }
-    input {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      margin-bottom: 1.2rem;
-      border-radius: 12px;
-      border: none;
-      font-size: 1.1rem;
-      outline: none;
-      box-shadow: inset 0 0 8px #ffffff44;
-      background: rgba(255 255 255 / 0.2);
-      color: #fff;
-      transition: box-shadow 0.3s ease;
-    }
-    input::placeholder {
-      color: #dcdde1aa;
-    }
-    input:focus {
-      box-shadow: 0 0 12px #a29bfe;
-      background: rgba(255 255 255 / 0.35);
-    }
-    button {
-      width: 100%;
-      padding: 0.85rem;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #fff;
-      background: linear-gradient(45deg, #6c5ce7, #341f97);
-      border: none;
-      border-radius: 16px;
-      cursor: pointer;
-      box-shadow: 0 5px 15px #6c5ce7bb;
-      transition: all 0.3s ease;
-    }
-    button:hover {
-      background: linear-gradient(45deg, #341f97, #6c5ce7);
-      box-shadow: 0 8px 20px #341f97cc;
-      transform: scale(1.05);
-    }
-    .error {
-      color: #ff7675;
-      margin-top: 1rem;
-      font-weight: 600;
-      min-height: 24px;
-      text-shadow: 0 0 6px #ff7675bb;
-    }
-    footer {
-      margin-top: 2rem;
-      font-size: 0.9rem;
-      color: #cfd1d7cc;
-      user-select: none;
     }
   </style>
 </head>
-<body>
-  <div class="login-box animate__animated animate__fadeInDown">
-    <h2>تسجيل الدخول</h2>
-    <input type="text" id="username" placeholder="اسم المستخدم" autocomplete="username" />
-    <input type="password" id="password" placeholder="كلمة المرور" autocomplete="current-password" />
-    <button onclick="login()">دخول</button>
-    <div class="error" id="error"></div>
-    <footer>تم الإنشاء بواسطة علي ناصر مساري</footer>
+<body class="bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center h-screen p-4">
+
+  <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-sm transition-all">
+    <h1 class="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">تسجيل الدخول</h1>
+    <form id="loginForm" class="space-y-4">
+      <input type="text" id="username" placeholder="اسم المستخدم" required
+             class="w-full px-4 py-2 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+      <input type="password" id="password" placeholder="كلمة المرور" required
+             class="w-full px-4 py-2 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+      <button type="submit"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-semibold transition duration-300">
+        دخول
+      </button>
+    </form>
+    <p class="text-sm text-center mt-6 text-gray-500 dark:text-gray-400">تم الإنشاء بواسطة <strong>علي ناصر</strong></p>
   </div>
 
   <script>
-    const VALID_USER = 'admin';
-    const VALID_PASS = '12345';
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
 
-    function login() {
-      const user = document.getElementById('username').value.trim();
-      const pass = document.getElementById('password').value.trim();
-      const errorBox = document.getElementById('error');
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
 
-      if (user === VALID_USER && pass === VALID_PASS) {
-        // لا نخزن حالة تسجيل الدخول => يطلب تسجيل الدخول كل مرة
-        window.location.href = 'index.html';
+      // تحقق بسيط من البيانات
+      if (username === "admin" && password === "admin") {
+        localStorage.setItem("isLoggedIn", "true");
+        window.location.href = "index.html";
       } else {
-        errorBox.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة';
+        alert("اسم المستخدم أو كلمة المرور غير صحيحة");
       }
-    }
+    });
   </script>
-
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
-  />
 </body>
 </html>
