@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>استعلام عن معلومات المركبة</title>
 
-  <!-- خط جميل -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
 
   <style>
@@ -19,9 +18,10 @@
       --color-card-light: #ffffff;
       --color-card-dark: #1e293b;
       --transition-fast: 0.3s ease-in-out;
+      --shadow-light: rgba(0, 0, 0, 0.12);
+      --shadow-dark: rgba(255, 255, 255, 0.1);
     }
 
-    /* الوضع الافتراضي: نهاري */
     body {
       font-family: 'Cairo', sans-serif;
       background-color: var(--color-bg-light);
@@ -35,7 +35,6 @@
       transition: background-color var(--transition-fast), color var(--transition-fast);
     }
 
-    /* الوضع الليلي */
     body.dark {
       background-color: var(--color-bg-dark);
       color: var(--color-text-dark);
@@ -56,7 +55,7 @@
       background-color: var(--color-card-light);
       border-radius: 20px;
       padding: 2rem;
-      box-shadow: 0 12px 30px rgb(0 0 0 / 0.1);
+      box-shadow: 0 12px 30px var(--shadow-light);
       transition: background-color var(--transition-fast);
       animation: fadeInUp 1s ease forwards;
       display: flex;
@@ -66,7 +65,7 @@
 
     body.dark .container {
       background-color: var(--color-card-dark);
-      box-shadow: 0 12px 30px rgb(255 255 255 / 0.05);
+      box-shadow: 0 12px 30px var(--shadow-dark);
     }
 
     input[type="text"] {
@@ -83,7 +82,7 @@
 
     input[type="text"]:focus {
       border-color: var(--color-primary);
-      box-shadow: 0 0 6px var(--color-primary);
+      box-shadow: 0 0 8px var(--color-primary);
     }
 
     button {
@@ -99,14 +98,22 @@
       cursor: pointer;
       transition: background 0.4s ease, transform 0.2s ease;
       user-select: none;
+      box-shadow: 0 6px 14px var(--shadow-light);
     }
 
     button:hover {
       background: linear-gradient(90deg, var(--color-primary-dark), var(--color-primary));
       transform: scale(1.05);
+      box-shadow: 0 8px 20px var(--shadow-light);
     }
 
-    /* القسمين جنب بعض */
+    body.dark button {
+      box-shadow: 0 6px 14px var(--shadow-dark);
+    }
+    body.dark button:hover {
+      box-shadow: 0 8px 20px var(--shadow-dark);
+    }
+
     .results-wrapper {
       display: flex;
       gap: 2rem;
@@ -120,16 +127,17 @@
       background-color: var(--color-card-light);
       border-radius: 16px;
       padding: 1rem 1.5rem;
-      box-shadow: 0 8px 20px rgb(0 0 0 / 0.08);
-      min-height: 200px;
+      box-shadow: 0 8px 20px var(--shadow-light);
+      min-height: 300px;
       max-height: 600px;
       overflow-y: auto;
       animation: fadeIn 0.8s ease forwards;
+      scroll-behavior: smooth;
     }
 
     body.dark .column {
       background-color: var(--color-card-dark);
-      box-shadow: 0 8px 20px rgb(255 255 255 / 0.04);
+      box-shadow: 0 8px 20px var(--shadow-dark);
     }
 
     .column h2 {
@@ -143,26 +151,24 @@
     .result-item {
       margin-bottom: 1rem;
       font-size: 1.125rem;
-      padding: 0.8rem 1rem;
+      padding: 1rem 1.2rem;
       border-radius: 12px;
       background: linear-gradient(90deg, #e0e7ff, #f0f9ff);
-      box-shadow: 0 3px 6px rgb(0 0 0 / 0.1);
-      transition: background 0.3s ease;
+      box-shadow: 0 3px 6px var(--shadow-light);
+      transition: background 0.3s ease, transform 0.2s ease;
       user-select: none;
-    }
-
-    body.dark .result-item {
-      background: linear-gradient(90deg, #2c3e50, #1f2a44);
+      cursor: default;
     }
 
     .result-item:hover {
       background: linear-gradient(90deg, #a5b4fc, #60a5fa);
       color: white;
-      cursor: default;
+      transform: translateY(-3px);
     }
 
-    .result-item strong {
-      color: var(--color-primary);
+    body.dark .result-item {
+      background: linear-gradient(90deg, #2c3e50, #1f2a44);
+      box-shadow: 0 3px 6px var(--shadow-dark);
     }
 
     .error, .empty {
@@ -201,7 +207,7 @@
       color: white;
       font-size: 1.5rem;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+      box-shadow: 0 4px 12px var(--shadow-light);
       transition: background-color 0.3s ease;
       user-select: none;
       z-index: 1000;
@@ -209,6 +215,18 @@
 
     .toggle-theme:hover {
       background: var(--color-primary-dark);
+    }
+
+    /* اللودر */
+    #loader {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid var(--color-primary);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 2rem auto 0;
+      display: none;
     }
 
     /* انيميشن */
@@ -238,6 +256,11 @@
       from {opacity:0;}
       to {opacity:1;}
     }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
   </style>
 </head>
 <body>
@@ -249,6 +272,8 @@
     <input id="uniqueInput" type="text" placeholder="🔢 ادخل الرقم الموحد" autocomplete="off" />
 
     <button onclick="fetchData()">بحث</button>
+
+    <div id="loader"></div>
 
     <div class="results-wrapper">
       <div class="column" id="withSonarColumn">
@@ -266,6 +291,11 @@
 
   <script>
     const toggleBtn = document.querySelector('.toggle-theme');
+    const loader = document.getElementById('loader');
+    const withSonarCol = document.getElementById('withSonarColumn');
+    const withoutSonarCol = document.getElementById('withoutSonarColumn');
+    const message = document.getElementById('message');
+
     toggleBtn.addEventListener('click', () => {
       document.body.classList.toggle('dark');
       if (document.body.classList.contains('dark')) {
@@ -286,9 +316,6 @@
 
     async function fetchData() {
       const unique = document.getElementById('uniqueInput').value.trim();
-      const withSonarCol = document.getElementById('withSonarColumn');
-      const withoutSonarCol = document.getElementById('withoutSonarColumn');
-      const message = document.getElementById('message');
 
       withSonarCol.innerHTML = '<h2>✅ بيها سونار</h2>';
       withoutSonarCol.innerHTML = '<h2>🚫 بدون سونار</h2>';
@@ -300,28 +327,3 @@
         message.textContent = 'يرجى إدخال الرقم الموحد للبحث';
         return;
       }
-
-      try {
-        const res = await fetch(`/api/proxy?unique=${encodeURIComponent(unique)}`);
-        if (!res.ok) throw new Error('فشل في جلب البيانات');
-
-        const data = await res.json();
-
-        if (!data.trips || data.trips.length === 0) {
-          message.style.display = 'block';
-          message.textContent = '🚫 لا توجد نتائج.';
-          return;
-        }
-
-        let foundWithSonar = 0;
-        let foundWithoutSonar = 0;
-
-        data.trips.forEach(trip => {
-          const hasSonar = trip.sonarData?.manifests?.length > 0;
-          const sonarDate = trip.sonarData?.manifests?.[0]?.sonarPictureDayTime;
-
-          const card = document.createElement('div');
-          card.className = 'result-item';
-          card.innerHTML = `
-            <p><strong>🚛 رقم السيارة:</strong> ${trip.truck_number || 'غير متوفر'}</p>
-            <p><strong>🧍‍♂️
