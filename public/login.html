@@ -1,32 +1,33 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>تسجيل الدخول</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-200 flex items-center justify-center min-h-screen">
-  <div class="bg-white p-6 rounded shadow w-full max-w-md">
-    <h2 class="text-xl font-bold mb-4 text-center">تسجيل الدخول</h2>
-    <form onsubmit="login(event)" class="space-y-4">
-      <input type="text" id="username" placeholder="اسم المستخدم" class="w-full p-2 border rounded">
-      <input type="password" id="password" placeholder="كلمة المرور" class="w-full p-2 border rounded">
-      <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded">دخول</button>
+<body class="bg-gray-900 text-white flex items-center justify-center h-screen">
+  <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-sm">
+    <h1 class="text-2xl font-bold mb-6 text-center">تسجيل الدخول</h1>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="اسم المستخدم" class="w-full p-2 mb-4 rounded bg-gray-700 text-white" required />
+      <input type="password" id="password" placeholder="كلمة المرور" class="w-full p-2 mb-4 rounded bg-gray-700 text-white" required />
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 w-full py-2 rounded">دخول</button>
     </form>
   </div>
 
   <script>
-    function login(e) {
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      if (username === 'admin' && password === 'admin') {
-        window.location.href = 'index.html';
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      if (username === "admin" && password === "admin") {
+        localStorage.setItem("auth", "true");
+        window.location.href = "index.html";
       } else {
-        alert('بيانات الدخول غير صحيحة');
+        alert("بيانات الدخول غير صحيحة");
       }
-    }
+    });
   </script>
 </body>
 </html>
