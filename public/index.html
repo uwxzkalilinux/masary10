@@ -3,275 +3,130 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>استعلام عن معلومات المركبة</title>
+  <title>معلومات الرحلات</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
       font-family: 'Cairo', sans-serif;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #f0f0f3;
-      transition: background 0.4s ease, color 0.4s ease;
     }
-    body.dark {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      color: #cbd5e1;
+
+    .fade-in {
+      animation: fadeIn 0.7s ease-in-out;
     }
-    h1 {
-      font-weight: 900;
-      font-size: 2.5rem;
-      margin-bottom: 2rem;
-      text-shadow: 0 0 10px rgba(255 255 255 / 0.6);
-      user-select: none;
-    }
-    .container {
-      width: 100%;
-      max-width: 900px;
-      background: rgba(255 255 255 / 0.15);
-      backdrop-filter: blur(15px);
-      border-radius: 24px;
-      padding: 2.5rem;
-      box-shadow: 0 0 24px rgba(0,0,0,0.3);
-      color: inherit;
-      user-select: none;
-    }
-    input {
-      width: 100%;
-      padding: 0.9rem 1rem;
-      border-radius: 14px;
-      border: none;
-      font-size: 1.1rem;
-      outline: none;
-      background: rgba(255 255 255 / 0.3);
-      color: inherit;
-      box-shadow: inset 0 0 8px rgba(255 255 255 / 0.4);
-      transition: box-shadow 0.3s ease;
-    }
-    input::placeholder {
-      color: rgba(255 255 255 / 0.7);
-    }
-    input:focus {
-      box-shadow: 0 0 18px #a29bfe;
-      background: rgba(255 255 255 / 0.6);
-      color: #1f2937;
-    }
-    .buttons {
-      margin-top: 1rem;
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    button {
-      background: linear-gradient(45deg, #6c5ce7, #341f97);
-      color: white;
-      padding: 0.9rem 2rem;
-      font-size: 1.2rem;
-      font-weight: 700;
-      border-radius: 24px;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 8px 25px #6c5ce7cc;
-      transition: all 0.3s ease;
-      user-select: none;
-      flex: 1 1 150px;
-      min-width: 150px;
-    }
-    button:hover {
-      background: linear-gradient(45deg, #341f97, #6c5ce7);
-      box-shadow: 0 12px 30px #341f97cc;
-      transform: scale(1.08);
-    }
-    #spinner {
-      display: none;
-      margin-top: 1.5rem;
-      justify-content: center;
-    }
-    #spinner svg {
-      height: 48px;
-      width: 48px;
-      color: #a29bfe;
-      animation: spin 1.2s linear infinite;
-    }
-    @keyframes spin {
-      0% {transform: rotate(0deg);}
-      100% {transform: rotate(360deg);}
-    }
-    #stats {
-      margin-top: 1.5rem;
-      font-size: 1.3rem;
-      font-weight: 600;
-      text-align: center;
-      text-shadow: 0 0 10px rgba(255 255 255 / 0.7);
-      min-height: 30px;
-      user-select: none;
-    }
-    .results-grid {
-      margin-top: 2rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-    .card {
-      background: rgba(255 255 255 / 0.3);
-      border-radius: 20px;
-      padding: 1.5rem;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-      color: inherit;
-      cursor: pointer;
-      transition: box-shadow 0.3s ease, transform 0.3s ease;
-      user-select: none;
-    }
-    .card:hover {
-      box-shadow: 0 12px 45px rgba(108, 92, 231, 0.7);
-      transform: scale(1.05);
-    }
-    .card .status {
-      font-weight: 800;
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
-      text-shadow: 0 0 5px rgba(255 255 255 / 0.8);
-    }
-    .card.green {
-      color: #34d399;
-    }
-    .card.red {
-      color: #f87171;
-    }
-    .footer {
-      margin-top: 3rem;
-      font-size: 1rem;
-      text-align: center;
-      color: #d1d5db;
-      user-select: none;
-      letter-spacing: 0.05em;
-    }
-    /* تقسيم اليمين واليسار */
-    #withoutSonarColumn {
-      border-right: 5px solid #f87171;
-      min-height: 300px;
-      border-radius: 20px;
-    }
-    #withSonarColumn {
-      border-left: 5px solid #34d399;
-      min-height: 300px;
-      border-radius: 20px;
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
-<body>
-  <h1 class="animate__animated animate__fadeInDown">🚚 استعلام عن معلومات مساري علي ناصر</h1>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-4 min-h-screen">
 
-  <div class="container animate__animated animate__fadeInUp">
-    <input id="uniqueId" placeholder="🔢 ادخل الرقم الموحد" autocomplete="off" />
-
-    <div class="buttons">
-      <button onclick="fetchData()">🚀 جلب المعلومات</button>
-      <button onclick="toggleTheme()">🌓 تبديل الوضع</button>
-      <button onclick="logout()">🔒 تسجيل خروج</button>
+  <div class="max-w-6xl mx-auto space-y-4">
+    <div class="flex flex-wrap gap-2 justify-center sm:justify-between items-center mb-6">
+      <h1 class="text-2xl sm:text-3xl font-bold text-center">استعلام معلومات الرحلة</h1>
+      <button onclick="logout()"
+              class="bg-red-600 hover:bg-red-700 text-white py-1 px-4 rounded-xl text-sm transition">
+        تسجيل الخروج
+      </button>
     </div>
 
-    <div id="spinner" aria-live="polite" aria-busy="true" role="status">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" >
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke-width="4" stroke="currentColor" />
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-      </svg>
+    <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-4 mb-6">
+      <input id="unique" type="text" placeholder="الرقم الموحد"
+             class="p-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500" />
+      <input id="carNumber" type="text" placeholder="رقم السيارة"
+             class="p-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500" />
+      <input id="containerNumber" type="text" placeholder="رقم الحاوية"
+             class="p-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500" />
+      <button onclick="fetchData()"
+              class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-xl transition">
+        بحث
+      </button>
     </div>
 
-    <div id="stats"></div>
-
-    <div class="results-grid">
-      <div id="withoutSonarColumn">
-        <h2 class="status red">🚫 بدون سونار</h2>
-      </div>
-      <div id="withSonarColumn">
-        <h2 class="status green">✅ بيها سونار</h2>
-      </div>
+    <div id="loading" class="text-center hidden">
+      <div class="text-blue-600 dark:text-blue-400">جاري التحميل...</div>
     </div>
 
-    <div class="footer">تم الإنشاء بواسطة علي ناصر مساري</div>
+    <div class="grid md:grid-cols-2 gap-4" id="results"></div>
   </div>
 
-<script>
-  function logout() {
-    // لا نخزن حالة تسجيل دخول => كل دخول يطلب تسجيل دخول
-    window.location.href = 'login.html';
-  }
-
-  function toggleTheme() {
-    document.body.classList.toggle('dark');
-  }
-
-  async function fetchData() {
-    const id = document.getElementById("uniqueId").value.trim();
-    const stats = document.getElementById("stats");
-    const spinner = document.getElementById("spinner");
-    const withSonarCol = document.getElementById("withSonarColumn");
-    const withoutSonarCol = document.getElementById("withoutSonarColumn");
-
-    withSonarCol.innerHTML = '<h2 class="status green">✅ بيها سونار</h2>';
-    withoutSonarCol.innerHTML = '<h2 class="status red">🚫 بدون سونار</h2>';
-    stats.textContent = "";
-    if (!id) {
-      stats.textContent = "⚠️ يرجى إدخال الرقم الموحد.";
-      return;
+  <script>
+    if (!localStorage.getItem("isLoggedIn")) {
+      window.location.href = "login.html";
     }
 
-    spinner.style.display = "flex";
-    stats.textContent = "";
+    function logout() {
+      localStorage.removeItem("isLoggedIn");
+      window.location.href = "login.html";
+    }
 
-    try {
-      const res = await fetch("/api/proxy?unique=" + encodeURIComponent(id));
-      if (!res.ok) throw new Error(`استجابة غير صالحة: ${res.status}`);
-      const data = await res.json();
+    async function fetchData() {
+      const unique = document.getElementById("unique").value.trim();
+      const carNumber = document.getElementById("carNumber").value.trim();
+      const containerNumber = document.getElementById("containerNumber").value.trim();
 
-      let trips = data.trips || [];
-      if (trips.length === 0) {
-        stats.textContent = "🚫 لم يتم العثور على نتائج.";
-        spinner.style.display = "none";
+      const queryParams = new URLSearchParams();
+      if (unique) queryParams.append("unique", unique);
+      if (carNumber) queryParams.append("carNumber", carNumber);
+      if (containerNumber) queryParams.append("containerNumber", containerNumber);
+
+      const url = `/api/proxy?${queryParams.toString()}`;
+      document.getElementById("results").innerHTML = "";
+      document.getElementById("loading").classList.remove("hidden");
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        renderResults(data);
+      } catch (err) {
+        alert("فشل في جلب البيانات");
+        console.error(err);
+      } finally {
+        document.getElementById("loading").classList.add("hidden");
+      }
+    }
+
+    function renderResults(data) {
+      const container = document.getElementById("results");
+      container.innerHTML = "";
+
+      if (!Array.isArray(data) || data.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center text-gray-600 dark:text-gray-300">لا توجد بيانات</div>`;
         return;
       }
 
-      let withSonar = 0;
-      let withoutSonar = 0;
+      data.forEach(item => {
+        const hasImage = item.sonar_image_url;
+        const card = document.createElement("div");
+        card.className = `fade-in p-4 rounded-2xl shadow-xl bg-white dark:bg-gray-800 border dark:border-gray-700 flex flex-col justify-between`;
 
-      trips.forEach(trip => {
-        const hasSonar = trip.sonarData?.manifests?.length > 0;
-        const sonarDate = trip.sonarData?.manifests?.[0]?.sonarPictureDayTime;
-        const card = document.createElement('div');
-        card.className = `card animate__animated animate__fadeInUp ${hasSonar ? 'green' : 'red'}`;
         card.innerHTML = `
-          <div class="status">${hasSonar ? '✅ بيها سونار' : '🚫 بدون سونار'}</div>
-          <p><strong>🚛 رقم السيارة:</strong> ${trip.truck_number || 'غير متوفر'}</p>
-          <p><strong>🧍‍♂️ السائق:</strong> ${trip.driver || 'غير متوفر'}</p>
-          <p><strong>📦 رقم الحاوية:</strong> ${trip.container_number || 'غير متوفر'}</p>
-          ${sonarDate ? `<p><strong>📅 تاريخ السونار:</strong> ${new Date(sonarDate).toLocaleString('ar-EG')}</p>` : ''}
-          <p><strong>📞 المندوب:</strong> ${trip.transportation_agent || 'غير متوفر'}</p>
+          <div>
+            <p><strong>رقم السيارة:</strong> ${item.truck_number || "غير متوفر"}</p>
+            <p><strong>اسم السائق:</strong> ${item.driver_name || "غير متوفر"}</p>
+            <p><strong>رقم الحاوية:</strong> ${item.container_number_export || "غير متوفر"}</p>
+            <p><strong>تاريخ دخول السونار:</strong> ${item.sonar_date || "غير متوفر"}</p>
+          </div>
+          ${hasImage ? `<button onclick="viewImage('${item.sonar_image_url}')"
+            class="mt-4 bg-green-600 hover:bg-green-700 text-white py-1 px-4 rounded-xl text-sm">عرض صورة السونار</button>` : ""}
         `;
 
-        if (hasSonar) {
-          withSonarCol.appendChild(card);
-          withSonar++;
+        // تصنيف حسب وجود صورة سونار
+        if (hasImage) {
+          container.appendChild(card);
         } else {
-          withoutSonarCol.appendChild(card);
-          withoutSonar++;
+          container.insertBefore(card, container.firstChild);
         }
       });
-
-      stats.textContent = `📊 النتائج: ${trips.length} — ✅ ${withSonar} | 🚫 ${withoutSonar}`;
-    } catch (err) {
-      stats.textContent = "⚠️ حدث خطأ: " + err.message;
-    } finally {
-      spinner.style.display = "none";
     }
-  }
-</script>
 
+    function viewImage(url) {
+      const win = window.open("", "_blank");
+      win.document.write(`<img src="${url}" class="w-full h-auto" />`);
+    }
+  </script>
 </body>
 </html>
