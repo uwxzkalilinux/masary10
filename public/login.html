@@ -8,73 +8,95 @@
   <style>
     body {
       font-family: 'Cairo', sans-serif;
-      background: linear-gradient(to right, #bdc3c7, #2c3e50);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      margin: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      margin: 0;
+      color: #f0f0f3;
     }
     .login-box {
-      background-color: white;
-      padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      text-align: center;
-      width: 100%;
+      background: rgba(255 255 255 / 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      padding: 3rem 2.5rem;
       max-width: 400px;
+      width: 90%;
+      text-align: center;
       transition: transform 0.3s ease;
     }
     .login-box:hover {
-      transform: translateY(-5px);
+      transform: translateY(-8px);
     }
     h2 {
-      margin-bottom: 1rem;
-      color: #2c3e50;
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+      font-size: 2.5rem;
+      text-shadow: 0 0 8px #ffffff88;
     }
     input {
       width: 100%;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.2rem;
+      border-radius: 12px;
+      border: none;
+      font-size: 1.1rem;
+      outline: none;
+      box-shadow: inset 0 0 8px #ffffff44;
+      background: rgba(255 255 255 / 0.2);
+      color: #fff;
+      transition: box-shadow 0.3s ease;
+    }
+    input::placeholder {
+      color: #dcdde1aa;
     }
     input:focus {
-      border-color: #2980b9;
-      box-shadow: 0 0 8px rgba(41, 128, 185, 0.2);
-      outline: none;
+      box-shadow: 0 0 12px #a29bfe;
+      background: rgba(255 255 255 / 0.35);
     }
     button {
       width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      background-color: #2980b9;
-      color: white;
+      padding: 0.85rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(45deg, #6c5ce7, #341f97);
       border: none;
-      border-radius: 8px;
+      border-radius: 16px;
       cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
+      box-shadow: 0 5px 15px #6c5ce7bb;
+      transition: all 0.3s ease;
     }
     button:hover {
-      background-color: #1c5980;
-      transform: scale(1.03);
+      background: linear-gradient(45deg, #341f97, #6c5ce7);
+      box-shadow: 0 8px 20px #341f97cc;
+      transform: scale(1.05);
     }
     .error {
-      color: red;
+      color: #ff7675;
       margin-top: 1rem;
+      font-weight: 600;
       min-height: 24px;
+      text-shadow: 0 0 6px #ff7675bb;
+    }
+    footer {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #cfd1d7cc;
+      user-select: none;
     }
   </style>
 </head>
 <body>
-  <div class="login-box">
+  <div class="login-box animate__animated animate__fadeInDown">
     <h2>تسجيل الدخول</h2>
     <input type="text" id="username" placeholder="اسم المستخدم" autocomplete="username" />
     <input type="password" id="password" placeholder="كلمة المرور" autocomplete="current-password" />
     <button onclick="login()">دخول</button>
     <div class="error" id="error"></div>
+    <footer>تم الإنشاء بواسطة علي ناصر مساري</footer>
   </div>
 
   <script>
@@ -87,13 +109,17 @@
       const errorBox = document.getElementById('error');
 
       if (user === VALID_USER && pass === VALID_PASS) {
-        // حذف التخزين في localStorage
-        // مباشرة التوجيه لصفحة index
+        // لا نخزن حالة تسجيل الدخول => يطلب تسجيل الدخول كل مرة
         window.location.href = 'index.html';
       } else {
         errorBox.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة';
       }
     }
   </script>
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+  />
 </body>
 </html>
