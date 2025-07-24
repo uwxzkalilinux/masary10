@@ -1,148 +1,143 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>استعلام عن معلومات المركبة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>استعلام معلومات المركبة</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/flowbite"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to right, #0f172a, #1e293b);
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .fade-in {
+      animation: fadeIn 1.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    input,
+    button {
+      font-family: 'Cairo', sans-serif;
+    }
+
+    input {
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      border: none;
+      outline: none;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      background-color: #3b82f6;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+    a {
+      color: #60a5fa;
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-blue-100 via-slate-100 to-purple-200 min-h-screen flex flex-col items-center justify-start py-10 px-4 font-sans">
 
-  <div class="w-full max-w-4xl mx-auto">
-    <div class="flex justify-between items-center w-full mb-6 animate__animated animate__fadeInDown">
-      <h1 class="text-4xl font-extrabold text-blue-800 tracking-tight drop-shadow-md">🚚 استعلام عن معلومات مساري علي ناصر</h1>
-    </div>
-
-    <div class="w-full bg-white p-8 rounded-3xl shadow-2xl backdrop-blur-md bg-opacity-80 animate__animated animate__fadeInUp">
-      <div class="flex flex-col sm:flex-row gap-4 mb-6">
-        <input id="uniqueId" class="flex-1 border-2 border-blue-300 rounded-xl px-5 py-3 text-lg focus:outline-none focus:ring-4 focus:ring-blue-400 transition duration-300 shadow-inner" placeholder="🔢 ادخل الرقم الموحد" />
-        <input id="searchTerm" class="flex-1 border-2 border-green-300 rounded-xl px-5 py-3 text-lg focus:outline-none focus:ring-4 focus:ring-green-400 transition duration-300 shadow-inner" placeholder="🔍 ابحث عن رقم السيارة أو الحاوية" />
-      </div>
-      <div class="flex flex-col sm:flex-row gap-4">
-        <button onclick="fetchData()" class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 px-8 rounded-2xl text-lg font-semibold transition transform hover:scale-105 shadow-lg">
-          🚀 جلب المعلومات
-        </button>
-        <button onclick="searchTrips()" class="w-full sm:w-auto bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-white py-3 px-8 rounded-2xl text-lg font-semibold transition transform hover:scale-105 shadow-lg">
-          🔎 بحث
-        </button>
-        <button onclick="logout()" class="w-full sm:w-auto bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white py-3 px-8 rounded-2xl text-lg font-semibold transition transform hover:scale-105 shadow-lg">
-          🔒 تسجيل خروج
-        </button>
+<body>
+  <div class="text-center fade-in">
+    <h1 class="text-4xl font-bold mb-6">نظام استعلام المركبات</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+      <input id="uniqueInput" type="text" placeholder="ادخل الرقم الموحد" class="text-black" />
+      <input id="truckInput" type="text" placeholder="ادخل رقم السيارة" class="text-black" />
+      <input id="containerInput" type="text" placeholder="ادخل رقم الحاوية" class="text-black" />
+      <div class="flex gap-2">
+        <input id="truckInputCombo" type="text" placeholder="رقم السيارة" class="text-black w-1/2" />
+        <input id="containerInputCombo" type="text" placeholder="رقم الحاوية" class="text-black w-1/2" />
       </div>
     </div>
+    <button onclick="search()" class="mt-4">بحث</button>
 
-    <div id="stats" class="text-center mt-6 text-lg font-semibold text-gray-800 animate__animated animate__fadeIn"></div>
-
-    <div class="flex justify-center mt-4 hidden" id="spinner">
-      <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-      </svg>
-    </div>
-
-    <div class="grid md:grid-cols-2 gap-6 mt-10 w-full">
-      <div class="bg-white rounded-3xl shadow-xl p-6 animate__animated animate__fadeInRight order-2 md:order-1" id="withoutSonarColumn">
-        <h2 class="text-2xl font-extrabold text-red-600 mb-4">🚫 بدون سونار</h2>
-      </div>
-      <div class="bg-white rounded-3xl shadow-xl p-6 animate__animated animate__fadeInLeft order-1 md:order-2" id="withSonarColumn">
-        <h2 class="text-2xl font-extrabold text-green-600 mb-4">✅ بيها سونار</h2>
-      </div>
-    </div>
+    <div id="result" class="mt-8 w-full max-w-3xl grid gap-4"></div>
   </div>
 
+  <footer class="mt-10 text-sm text-gray-400">تم الإنشاء بواسطة علي ناصر مساري - 2025</footer>
+
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      if (localStorage.getItem('loggedIn') !== 'true') {
-        window.location.href = 'login.html';
-      }
-    });
+    async function search() {
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "<p>جاري البحث...</p>";
 
-    function logout() {
-      localStorage.removeItem('loggedIn');
-      window.location.href = 'login.html';
-    }
+      const unique = document.getElementById("uniqueInput").value.trim();
+      const truck = document.getElementById("truckInput").value.trim();
+      const container = document.getElementById("containerInput").value.trim();
+      const comboTruck = document.getElementById("truckInputCombo").value.trim();
+      const comboContainer = document.getElementById("containerInputCombo").value.trim();
 
-    async function fetchData() {
-      await renderTrips();
-    }
-
-    async function searchTrips() {
-      await renderTrips(true);
-    }
-
-    async function renderTrips(isSearch = false) {
-      const id = document.getElementById("uniqueId").value.trim();
-      const searchTerm = document.getElementById("searchTerm").value.trim().toLowerCase();
-      const stats = document.getElementById("stats");
-      const spinner = document.getElementById("spinner");
-      const withSonarCol = document.getElementById("withSonarColumn");
-      const withoutSonarCol = document.getElementById("withoutSonarColumn");
-
-      withSonarCol.innerHTML = '<h2 class="text-2xl font-extrabold text-green-600 mb-4">✅ بيها سونار</h2>';
-      withoutSonarCol.innerHTML = '<h2 class="text-2xl font-extrabold text-red-600 mb-4">🚫 بدون سونار</h2>';
-      stats.textContent = "";
-      spinner.classList.remove("hidden");
-
-      if (!id || (isSearch && !searchTerm)) {
-        spinner.classList.add("hidden");
-        stats.textContent = "يرجى إدخال البيانات المطلوبة.";
+      let url = "";
+      if (unique) url = `/api/proxy?unique=${unique}`;
+      else if (truck && container) url = `/api/proxy?truck_number=${truck}&container_number=${container}`;
+      else if (truck) url = `/api/proxy?truck_number=${truck}`;
+      else if (container) url = `/api/proxy?container_number=${container}`;
+      else {
+        resultDiv.innerHTML = "<p class='text-red-400'>يرجى إدخال قيمة في أحد الحقول.</p>";
         return;
       }
 
       try {
-        const res = await fetch("/api/proxy?unique=" + encodeURIComponent(id));
-        if (!res.ok) throw new Error(`استجابة غير صالحة: ${res.status}`);
+        const res = await fetch(url);
         const data = await res.json();
 
-        let trips = data.trips || [];
-        if (isSearch) {
-          trips = trips.filter(trip =>
-            trip.truck_number?.toLowerCase().includes(searchTerm) ||
-            trip.container_number?.toLowerCase().includes(searchTerm)
-          );
-        }
-
-        if (trips.length === 0) {
-          stats.textContent = "🚫 لم يتم العثور على نتائج.";
+        if (!Array.isArray(data) || data.length === 0) {
+          resultDiv.innerHTML = "<p class='text-yellow-300'>لا توجد نتائج.</p>";
           return;
         }
 
-        let withSonar = 0;
-        let withoutSonar = 0;
-
-        trips.forEach(trip => {
-          const hasSonar = trip.sonarData?.manifests?.length > 0;
-          const sonarDate = trip.sonarData?.manifests?.[0]?.sonarPictureDayTime;
-          const card = document.createElement('div');
-          card.className = 'bg-gradient-to-br from-white via-gray-100 to-slate-200 rounded-2xl p-5 mb-4 shadow-md hover:shadow-2xl transition-all duration-300 animate__animated animate__fadeInUp';
-          card.innerHTML = `
-            <div class="text-${hasSonar ? 'green' : 'red'}-600 font-bold text-lg mb-2">
-              ${hasSonar ? '✅ بيها سونار' : '🚫 بدون سونار'}
-            </div>
-            <p><strong>🚛 رقم السيارة:</strong> ${trip.truck_number || 'غير متوفر'}</p>
-            <p><strong>🧍‍♂️ السائق:</strong> ${trip.driver || 'غير متوفر'}</p>
-            <p><strong>📦 رقم الحاوية:</strong> ${trip.container_number || 'غير متوفر'}</p>
-            ${sonarDate ? `<p><strong>📅 تاريخ السونار:</strong> ${new Date(sonarDate).toLocaleString('ar-EG')}</p>` : ''}
-          `;
-
-          if (hasSonar) {
-            withSonarCol.appendChild(card);
-            withSonar++;
-          } else {
-            withoutSonarCol.appendChild(card);
-            withoutSonar++;
-          }
-        });
-
-        stats.textContent = `📊 النتائج: ${trips.length} — ✅ ${withSonar} | 🚫 ${withoutSonar}`;
+        resultDiv.innerHTML = data
+          .map(
+            (item) => `
+          <div class="bg-gray-800 p-4 rounded-lg shadow-md fade-in">
+            <p><strong>رقم السيارة:</strong> ${item.truck_number || "—"}</p>
+            <p><strong>اسم السائق:</strong> ${item.driver_name || "—"}</p>
+            <p><strong>رقم الحاوية:</strong> ${item.container_number_export || "—"}</p>
+            <p><strong>تاريخ دخول السونار:</strong> ${item.sonar_entry_date || "—"}</p>
+            <a href="sonar.html?url=${encodeURIComponent(
+              item.sonar_image_url || ""
+            )}" target="_blank" class="inline-block mt-2 text-blue-400 underline">عرض صورة السونار</a>
+          </div>
+        `
+          )
+          .join("");
       } catch (err) {
-        stats.textContent = "⚠️ حدث خطأ: " + err.message;
-      } finally {
-        spinner.classList.add("hidden");
+        resultDiv.innerHTML = "<p class='text-red-500'>حدث خطأ أثناء جلب البيانات.</p>";
+        console.error(err);
       }
     }
   </script>
 </body>
+
 </html>
