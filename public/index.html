@@ -2,328 +2,101 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>استعلام عن معلومات المركبة</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
-
-  <style>
-    :root {
-      --color-bg-light: #f0f4f8;
-      --color-bg-dark: #121826;
-      --color-primary: #3b82f6;
-      --color-primary-dark: #2563eb;
-      --color-text-light: #1e293b;
-      --color-text-dark: #e0e7ff;
-      --color-card-light: #ffffff;
-      --color-card-dark: #1e293b;
-      --transition-fast: 0.3s ease-in-out;
-      --shadow-light: rgba(0, 0, 0, 0.12);
-      --shadow-dark: rgba(255, 255, 255, 0.1);
-    }
-
-    body {
-      font-family: 'Cairo', sans-serif;
-      background-color: var(--color-bg-light);
-      color: var(--color-text-light);
-      margin: 0;
-      padding: 2rem 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      transition: background-color var(--transition-fast), color var(--transition-fast);
-    }
-
-    body.dark {
-      background-color: var(--color-bg-dark);
-      color: var(--color-text-dark);
-    }
-
-    h1 {
-      font-weight: 700;
-      font-size: 2.75rem;
-      margin-bottom: 1rem;
-      text-align: center;
-      user-select: none;
-      animation: fadeInDown 1s ease forwards;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 900px;
-      background-color: var(--color-card-light);
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: 0 12px 30px var(--shadow-light);
-      transition: background-color var(--transition-fast);
-      animation: fadeInUp 1s ease forwards;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    body.dark .container {
-      background-color: var(--color-card-dark);
-      box-shadow: 0 12px 30px var(--shadow-dark);
-    }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 1rem 1.25rem;
-      border-radius: 12px;
-      border: 2px solid #cbd5e1;
-      font-size: 1.125rem;
-      outline-offset: 4px;
-      transition: border-color var(--transition-fast);
-      color: inherit;
-      background-color: transparent;
-    }
-
-    input[type="text"]:focus {
-      border-color: var(--color-primary);
-      box-shadow: 0 0 8px var(--color-primary);
-    }
-
-    button {
-      margin-top: 1rem;
-      width: 100%;
-      padding: 1rem;
-      background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
-      border: none;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 1.25rem;
-      color: white;
-      cursor: pointer;
-      transition: background 0.4s ease, transform 0.2s ease;
-      user-select: none;
-      box-shadow: 0 6px 14px var(--shadow-light);
-    }
-
-    button:hover {
-      background: linear-gradient(90deg, var(--color-primary-dark), var(--color-primary));
-      transform: scale(1.05);
-      box-shadow: 0 8px 20px var(--shadow-light);
-    }
-
-    body.dark button {
-      box-shadow: 0 6px 14px var(--shadow-dark);
-    }
-    body.dark button:hover {
-      box-shadow: 0 8px 20px var(--shadow-dark);
-    }
-
-    .results-wrapper {
-      display: flex;
-      gap: 2rem;
-      margin-top: 2rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .column {
-      flex: 1 1 400px;
-      background-color: var(--color-card-light);
-      border-radius: 16px;
-      padding: 1rem 1.5rem;
-      box-shadow: 0 8px 20px var(--shadow-light);
-      min-height: 300px;
-      max-height: 600px;
-      overflow-y: auto;
-      animation: fadeIn 0.8s ease forwards;
-      scroll-behavior: smooth;
-    }
-
-    body.dark .column {
-      background-color: var(--color-card-dark);
-      box-shadow: 0 8px 20px var(--shadow-dark);
-    }
-
-    .column h2 {
-      text-align: center;
-      margin-bottom: 1rem;
-      font-weight: 800;
-      font-size: 1.5rem;
-      user-select: none;
-    }
-
-    .result-item {
-      margin-bottom: 1rem;
-      font-size: 1.125rem;
-      padding: 1rem 1.2rem;
-      border-radius: 12px;
-      background: linear-gradient(90deg, #e0e7ff, #f0f9ff);
-      box-shadow: 0 3px 6px var(--shadow-light);
-      transition: background 0.3s ease, transform 0.2s ease;
-      user-select: none;
-      cursor: default;
-    }
-
-    .result-item:hover {
-      background: linear-gradient(90deg, #a5b4fc, #60a5fa);
-      color: white;
-      transform: translateY(-3px);
-    }
-
-    body.dark .result-item {
-      background: linear-gradient(90deg, #2c3e50, #1f2a44);
-      box-shadow: 0 3px 6px var(--shadow-dark);
-    }
-
-    .error, .empty {
-      font-weight: 700;
-      font-size: 1.1rem;
-      text-align: center;
-      margin-top: 2rem;
-      color: #ef4444; /* أحمر */
-      user-select: none;
-      animation: fadeIn 1s ease forwards;
-    }
-
-    .empty {
-      color: #fbbf24; /* أصفر */
-    }
-
-    .footer {
-      margin-top: auto;
-      text-align: center;
-      font-size: 0.9rem;
-      color: #94a3b8;
-      user-select: none;
-      padding: 1rem;
-    }
-
-    /* زر تبديل الوضع */
-    .toggle-theme {
-      position: fixed;
-      top: 1rem;
-      left: 1rem;
-      background: var(--color-primary);
-      border: none;
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      color: white;
-      font-size: 1.5rem;
-      cursor: pointer;
-      box-shadow: 0 4px 12px var(--shadow-light);
-      transition: background-color 0.3s ease;
-      user-select: none;
-      z-index: 1000;
-    }
-
-    .toggle-theme:hover {
-      background: var(--color-primary-dark);
-    }
-
-    /* اللودر */
-    #loader {
-      border: 5px solid #f3f3f3;
-      border-top: 5px solid var(--color-primary);
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-      margin: 2rem auto 0;
-      display: none;
-    }
-
-    /* انيميشن */
-    @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeIn {
-      from {opacity:0;}
-      to {opacity:1;}
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg);}
-      100% { transform: rotate(360deg);}
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>واجهة عرض المركبات</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <button class="toggle-theme" aria-label="تبديل الوضع الليلي/النهاري" title="تبديل الوضع">🌙</button>
-
-  <h1>🚚 استعلام عن معلومات المركبة</h1>
-
-  <div class="container">
-    <input id="uniqueInput" type="text" placeholder="🔢 ادخل الرقم الموحد" autocomplete="off" />
-
-    <button onclick="fetchData()">بحث</button>
-
-    <div id="loader"></div>
-
-    <div class="results-wrapper">
-      <div class="column" id="withSonarColumn">
-        <h2>✅ بيها سونار</h2>
-      </div>
-      <div class="column" id="withoutSonarColumn">
-        <h2>🚫 بدون سونار</h2>
-      </div>
-    </div>
-
-    <div id="message" class="error" style="display:none;"></div>
+<body class="bg-gray-100 text-gray-900 transition duration-500" id="body">
+  <!-- زر الوضع الليلي -->
+  <div class="fixed top-4 left-4 z-50">
+    <button id="toggleTheme" class="bg-gray-200 text-black px-3 py-1 rounded shadow">
+      الوضع الليلي 🌙
+    </button>
   </div>
 
-  <footer class="footer">تم الإنشاء بواسطة علي ناصر مساري - 2025</footer>
+  <!-- تحميل -->
+  <div id="loader" class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 hidden">
+    <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
+  </div>
 
+  <!-- مربع البحث -->
+  <div class="max-w-xl mx-auto mt-20 p-6 bg-white shadow-xl rounded-lg">
+    <h1 class="text-2xl font-bold mb-4 text-center">البحث عن بيانات المركبة</h1>
+    <input id="unique" placeholder="أدخل الرقم الموحد" class="w-full p-2 border border-gray-300 rounded mb-4" />
+    <button onclick="search()" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">
+      بحث
+    </button>
+  </div>
+
+  <!-- النتائج -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-6" id="results"></div>
+
+  <!-- JavaScript -->
   <script>
-    const toggleBtn = document.querySelector('.toggle-theme');
-    const loader = document.getElementById('loader');
-    const withSonarCol = document.getElementById('withSonarColumn');
-    const withoutSonarCol = document.getElementById('withoutSonarColumn');
-    const message = document.getElementById('message');
-
-    toggleBtn.addEventListener('click', () => {
-      document.body.classList.toggle('dark');
-      if (document.body.classList.contains('dark')) {
-        toggleBtn.textContent = '☀️';
-        localStorage.setItem('theme', 'dark');
+    // تحويل داكن / فاتح
+    document.getElementById("toggleTheme").onclick = function () {
+      const body = document.getElementById("body");
+      if (body.classList.contains("bg-gray-900")) {
+        body.classList.remove("bg-gray-900", "text-white");
+        body.classList.add("bg-gray-100", "text-gray-900");
+        this.innerText = "الوضع الليلي 🌙";
       } else {
-        toggleBtn.textContent = '🌙';
-        localStorage.setItem('theme', 'light');
+        body.classList.remove("bg-gray-100", "text-gray-900");
+        body.classList.add("bg-gray-900", "text-white");
+        this.innerText = "الوضع النهاري ☀️";
       }
-    });
+    };
 
-    window.addEventListener('DOMContentLoaded', () => {
-      if(localStorage.getItem('theme') === 'dark') {
-        document.body.classList.add('dark');
-        toggleBtn.textContent = '☀️';
+    // تحقق من تسجيل الدخول
+    if (localStorage.getItem("auth") !== "true") {
+      window.location.href = "login.html";
+    }
+
+    // البحث
+    async function search() {
+      const unique = document.getElementById("unique").value.trim();
+      if (!unique) return alert("يرجى إدخال الرقم الموحد");
+
+      document.getElementById("loader").classList.remove("hidden");
+      const res = await fetch(`/api/proxy.js?unique=${unique}`);
+      const data = await res.json();
+      document.getElementById("loader").classList.add("hidden");
+
+      const results = document.getElementById("results");
+      results.innerHTML = "";
+
+      const withSonar = [];
+      const withoutSonar = [];
+
+      if (Array.isArray(data)) {
+        data.forEach(item => {
+          const card = `
+            <div class="bg-white shadow-lg p-4 rounded-lg transform transition hover:scale-105">
+              <p><strong>رقم السيارة:</strong> ${item.truck_number}</p>
+              <p><strong>اسم السائق:</strong> ${item.driver_name}</p>
+              <p><strong>رقم الحاوية:</strong> ${item.container_number_export}</p>
+              <p><strong>اسم المندوب:</strong> ${item.transportation_agent || "غير متوفر"}</p>
+              <p><strong>تاريخ دخول السونار:</strong> ${item.sonar_entry_time || "لا يوجد"}</p>
+              ${item.sonar_image_path ? `<button class="mt-2 px-3 py-1 bg-blue-500 text-white rounded">عرض صورة السونار</button>` : ""}
+            </div>
+          `;
+          if (item.sonar_image_path) {
+            withSonar.push(card);
+          } else {
+            withoutSonar.push(card);
+          }
+        });
+
+        // عرض: يمين = بدون سونار | يسار = مع سونار
+        results.innerHTML = `
+          <div class="space-y-4">${withoutSonar.join("")}</div>
+          <div class="space-y-4">${withSonar.join("")}</div>
+        `;
+      } else {
+        results.innerHTML = `<p class="text-red-500">لم يتم العثور على بيانات</p>`;
       }
-    });
-
-    async function fetchData() {
-      const unique = document.getElementById('uniqueInput').value.trim();
-
-      withSonarCol.innerHTML = '<h2>✅ بيها سونار</h2>';
-      withoutSonarCol.innerHTML = '<h2>🚫 بدون سونار</h2>';
-      message.style.display = 'none';
-      message.textContent = '';
-
-      if (!unique) {
-        message.style.display = 'block';
-        message.textContent = 'يرجى إدخال الرقم الموحد للبحث';
-        return;
-      }
+    }
+  </script>
+</body>
+</html>
