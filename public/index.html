@@ -52,13 +52,16 @@
 
     .container {
       width: 100%;
-      max-width: 480px;
+      max-width: 900px;
       background-color: var(--color-card-light);
       border-radius: 20px;
       padding: 2rem;
       box-shadow: 0 12px 30px rgb(0 0 0 / 0.1);
       transition: background-color var(--transition-fast);
       animation: fadeInUp 1s ease forwards;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
     }
 
     body.dark .container {
@@ -84,7 +87,7 @@
     }
 
     button {
-      margin-top: 1.5rem;
+      margin-top: 1rem;
       width: 100%;
       padding: 1rem;
       background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
@@ -103,23 +106,59 @@
       transform: scale(1.05);
     }
 
-    .results {
+    /* القسمين جنب بعض */
+    .results-wrapper {
+      display: flex;
+      gap: 2rem;
       margin-top: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .column {
+      flex: 1 1 400px;
+      background-color: var(--color-card-light);
       border-radius: 16px;
       padding: 1rem 1.5rem;
       box-shadow: 0 8px 20px rgb(0 0 0 / 0.08);
-      background-color: var(--color-card-light);
+      min-height: 200px;
+      max-height: 600px;
+      overflow-y: auto;
       animation: fadeIn 0.8s ease forwards;
     }
 
-    body.dark .results {
+    body.dark .column {
       background-color: var(--color-card-dark);
       box-shadow: 0 8px 20px rgb(255 255 255 / 0.04);
+    }
+
+    .column h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-weight: 800;
+      font-size: 1.5rem;
+      user-select: none;
     }
 
     .result-item {
       margin-bottom: 1rem;
       font-size: 1.125rem;
+      padding: 0.8rem 1rem;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #e0e7ff, #f0f9ff);
+      box-shadow: 0 3px 6px rgb(0 0 0 / 0.1);
+      transition: background 0.3s ease;
+      user-select: none;
+    }
+
+    body.dark .result-item {
+      background: linear-gradient(90deg, #2c3e50, #1f2a44);
+    }
+
+    .result-item:hover {
+      background: linear-gradient(90deg, #a5b4fc, #60a5fa);
+      color: white;
+      cursor: default;
     }
 
     .result-item strong {
@@ -211,13 +250,21 @@
 
     <button onclick="fetchData()">بحث</button>
 
-    <div id="resultContainer"></div>
+    <div class="results-wrapper">
+      <div class="column" id="withSonarColumn">
+        <h2>✅ بيها سونار</h2>
+      </div>
+      <div class="column" id="withoutSonarColumn">
+        <h2>🚫 بدون سونار</h2>
+      </div>
+    </div>
+
+    <div id="message" class="error" style="display:none;"></div>
   </div>
 
   <footer class="footer">تم الإنشاء بواسطة علي ناصر مساري - 2025</footer>
 
   <script>
-    // تبديل الوضع
     const toggleBtn = document.querySelector('.toggle-theme');
     toggleBtn.addEventListener('click', () => {
       document.body.classList.toggle('dark');
@@ -230,7 +277,6 @@
       }
     });
 
-    // تحميل وضع من التخزين المحلي
     window.addEventListener('DOMContentLoaded', () => {
       if(localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark');
@@ -240,48 +286,42 @@
 
     async function fetchData() {
       const unique = document.getElementById('uniqueInput').value.trim();
-      const resultContainer = document.getElementById('resultContainer');
-      resultContainer.innerHTML = '';
+      const withSonarCol = document.getElementById('withSonarColumn');
+      const withoutSonarCol = document.getElementById('withoutSonarColumn');
+      const message = document.getElementById('message');
+
+      withSonarCol.innerHTML = '<h2>✅ بيها سونار</h2>';
+      withoutSonarCol.innerHTML = '<h2>🚫 بدون سونار</h2>';
+      message.style.display = 'none';
+      message.textContent = '';
 
       if (!unique) {
-        resultContainer.innerHTML = `<p class="error">يرجى إدخال الرقم الموحد للبحث</p>`;
+        message.style.display = 'block';
+        message.textContent = 'يرجى إدخال الرقم الموحد للبحث';
         return;
       }
 
-      resultContainer.innerHTML = `<p>جاري البحث...</p>`;
-
       try {
-        const response = await fetch(`/api/proxy?unique=${encodeURIComponent(unique)}`);
-        if (!response.ok) throw new Error('فشل في جلب البيانات');
+        const res = await fetch(`/api/proxy?unique=${encodeURIComponent(unique)}`);
+        if (!res.ok) throw new Error('فشل في جلب البيانات');
 
-        const data = await response.json();
+        const data = await res.json();
 
         if (!data.trips || data.trips.length === 0) {
-          resultContainer.innerHTML = `<p class="empty">🚫 لا توجد نتائج.</p>`;
+          message.style.display = 'block';
+          message.textContent = '🚫 لا توجد نتائج.';
           return;
         }
 
-        const html = data.trips.map(trip => {
+        let foundWithSonar = 0;
+        let foundWithoutSonar = 0;
+
+        data.trips.forEach(trip => {
           const hasSonar = trip.sonarData?.manifests?.length > 0;
           const sonarDate = trip.sonarData?.manifests?.[0]?.sonarPictureDayTime;
-          return `
-            <div class="results" style="margin-bottom: 1rem;">
-              <p class="result-item"><strong>🚛 رقم السيارة:</strong> ${trip.truck_number || 'غير متوفر'}</p>
-              <p class="result-item"><strong>🧍‍♂️ السائق:</strong> ${trip.driver || 'غير متوفر'}</p>
-              <p class="result-item"><strong>📦 رقم الحاوية:</strong> ${trip.container_number || 'غير متوفر'}</p>
-              <p class="result-item"><strong>🚚 اسم المندوب:</strong> ${trip.transportation_agent || 'غير متوفر'}</p>
-              ${sonarDate ? `<p class="result-item"><strong>📅 تاريخ دخول السونار:</strong> ${new Date(sonarDate).toLocaleString('ar-EG')}</p>` : ''}
-              <p class="result-item" style="color: ${hasSonar ? '#22c55e' : '#ef4444'}; font-weight:bold;">${hasSonar ? '✅ بيها سونار' : '🚫 بدون سونار'}</p>
-            </div>
-          `;
-        }).join('');
 
-        resultContainer.innerHTML = html;
-
-      } catch (error) {
-        resultContainer.innerHTML = `<p class="error">⚠️ حدث خطأ: ${error.message}</p>`;
-      }
-    }
-  </script>
-</body>
-</html>
+          const card = document.createElement('div');
+          card.className = 'result-item';
+          card.innerHTML = `
+            <p><strong>🚛 رقم السيارة:</strong> ${trip.truck_number || 'غير متوفر'}</p>
+            <p><strong>🧍‍♂️
