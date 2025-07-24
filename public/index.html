@@ -1,142 +1,287 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>استعلام معلومات المركبة</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>استعلام عن معلومات المركبة</title>
+
+  <!-- خط جميل -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
+
   <style>
+    :root {
+      --color-bg-light: #f0f4f8;
+      --color-bg-dark: #121826;
+      --color-primary: #3b82f6;
+      --color-primary-dark: #2563eb;
+      --color-text-light: #1e293b;
+      --color-text-dark: #e0e7ff;
+      --color-card-light: #ffffff;
+      --color-card-dark: #1e293b;
+      --transition-fast: 0.3s ease-in-out;
+    }
+
+    /* الوضع الافتراضي: نهاري */
     body {
       font-family: 'Cairo', sans-serif;
-      background: linear-gradient(to right, #0f172a, #1e293b);
-      color: #f1f5f9;
-      min-height: 100vh;
+      background-color: var(--color-bg-light);
+      color: var(--color-text-light);
+      margin: 0;
+      padding: 2rem 1rem;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
+      min-height: 100vh;
+      transition: background-color var(--transition-fast), color var(--transition-fast);
+    }
+
+    /* الوضع الليلي */
+    body.dark {
+      background-color: var(--color-bg-dark);
+      color: var(--color-text-dark);
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 2.75rem;
+      margin-bottom: 1rem;
+      text-align: center;
+      user-select: none;
+      animation: fadeInDown 1s ease forwards;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      background-color: var(--color-card-light);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 12px 30px rgb(0 0 0 / 0.1);
+      transition: background-color var(--transition-fast);
+      animation: fadeInUp 1s ease forwards;
+    }
+
+    body.dark .container {
+      background-color: var(--color-card-dark);
+      box-shadow: 0 12px 30px rgb(255 255 255 / 0.05);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      border: 2px solid #cbd5e1;
+      font-size: 1.125rem;
+      outline-offset: 4px;
+      transition: border-color var(--transition-fast);
+      color: inherit;
+      background-color: transparent;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 6px var(--color-primary);
+    }
+
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: white;
+      cursor: pointer;
+      transition: background 0.4s ease, transform 0.2s ease;
+      user-select: none;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, var(--color-primary-dark), var(--color-primary));
+      transform: scale(1.05);
+    }
+
+    .results {
+      margin-top: 2rem;
+      border-radius: 16px;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 8px 20px rgb(0 0 0 / 0.08);
+      background-color: var(--color-card-light);
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    body.dark .results {
+      background-color: var(--color-card-dark);
+      box-shadow: 0 8px 20px rgb(255 255 255 / 0.04);
+    }
+
+    .result-item {
+      margin-bottom: 1rem;
+      font-size: 1.125rem;
+    }
+
+    .result-item strong {
+      color: var(--color-primary);
+    }
+
+    .error, .empty {
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-align: center;
+      margin-top: 2rem;
+      color: #ef4444; /* أحمر */
+      user-select: none;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    .empty {
+      color: #fbbf24; /* أصفر */
+    }
+
+    .footer {
+      margin-top: auto;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #94a3b8;
+      user-select: none;
       padding: 1rem;
     }
 
-    .fade-in {
-      animation: fadeIn 1.5s ease-in-out;
+    /* زر تبديل الوضع */
+    .toggle-theme {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      background: var(--color-primary);
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+      transition: background-color 0.3s ease;
+      user-select: none;
+      z-index: 1000;
     }
 
-    @keyframes fadeIn {
+    .toggle-theme:hover {
+      background: var(--color-primary-dark);
+    }
+
+    /* انيميشن */
+    @keyframes fadeInDown {
       from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(-20px);
       }
-
       to {
         opacity: 1;
         transform: translateY(0);
       }
     }
 
-    input,
-    button {
-      font-family: 'Cairo', sans-serif;
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
-    input {
-      padding: 0.75rem;
-      border-radius: 0.75rem;
-      border: none;
-      outline: none;
-    }
-
-    button {
-      padding: 0.75rem 1.5rem;
-      border-radius: 9999px;
-      border: none;
-      cursor: pointer;
-      background-color: #3b82f6;
-      color: white;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #2563eb;
-    }
-
-    a {
-      color: #60a5fa;
+    @keyframes fadeIn {
+      from {opacity:0;}
+      to {opacity:1;}
     }
   </style>
 </head>
-
 <body>
-  <div class="text-center fade-in">
-    <h1 class="text-4xl font-bold mb-6">نظام استعلام المركبات</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
-      <input id="uniqueInput" type="text" placeholder="ادخل الرقم الموحد" class="text-black" />
-      <input id="truckInput" type="text" placeholder="ادخل رقم السيارة" class="text-black" />
-      <input id="containerInput" type="text" placeholder="ادخل رقم الحاوية" class="text-black" />
-      <div class="flex gap-2">
-        <input id="truckInputCombo" type="text" placeholder="رقم السيارة" class="text-black w-1/2" />
-        <input id="containerInputCombo" type="text" placeholder="رقم الحاوية" class="text-black w-1/2" />
-      </div>
-    </div>
-    <button onclick="search()" class="mt-4">بحث</button>
+  <button class="toggle-theme" aria-label="تبديل الوضع الليلي/النهاري" title="تبديل الوضع">🌙</button>
 
-    <div id="result" class="mt-8 w-full max-w-3xl grid gap-4"></div>
+  <h1>🚚 استعلام عن معلومات المركبة</h1>
+
+  <div class="container">
+    <input id="uniqueInput" type="text" placeholder="🔢 ادخل الرقم الموحد" autocomplete="off" />
+
+    <button onclick="fetchData()">بحث</button>
+
+    <div id="resultContainer"></div>
   </div>
 
-  <footer class="mt-10 text-sm text-gray-400">تم الإنشاء بواسطة علي ناصر مساري - 2025</footer>
+  <footer class="footer">تم الإنشاء بواسطة علي ناصر مساري - 2025</footer>
 
   <script>
-    async function search() {
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = "<p>جاري البحث...</p>";
+    // تبديل الوضع
+    const toggleBtn = document.querySelector('.toggle-theme');
+    toggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      if (document.body.classList.contains('dark')) {
+        toggleBtn.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        toggleBtn.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      }
+    });
 
-      const unique = document.getElementById("uniqueInput").value.trim();
-      const truck = document.getElementById("truckInput").value.trim();
-      const container = document.getElementById("containerInput").value.trim();
-      const comboTruck = document.getElementById("truckInputCombo").value.trim();
-      const comboContainer = document.getElementById("containerInputCombo").value.trim();
+    // تحميل وضع من التخزين المحلي
+    window.addEventListener('DOMContentLoaded', () => {
+      if(localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark');
+        toggleBtn.textContent = '☀️';
+      }
+    });
 
-      let url = "";
-      if (unique) url = `/api/proxy?unique=${unique}`;
-      else if (comboTruck && comboContainer) url = `/api/proxy?truck_number=${comboTruck}&container_number=${comboContainer}`;
-      else if (truck) url = `/api/proxy?truck_number=${truck}`;
-      else if (container) url = `/api/proxy?container_number=${container}`;
-      else {
-        resultDiv.innerHTML = "<p class='text-red-400'>يرجى إدخال قيمة في أحد الحقول.</p>";
+    async function fetchData() {
+      const unique = document.getElementById('uniqueInput').value.trim();
+      const resultContainer = document.getElementById('resultContainer');
+      resultContainer.innerHTML = '';
+
+      if (!unique) {
+        resultContainer.innerHTML = `<p class="error">يرجى إدخال الرقم الموحد للبحث</p>`;
         return;
       }
 
-      try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`خطأ في الاتصال: ${res.status}`);
-        const data = await res.json();
+      resultContainer.innerHTML = `<p>جاري البحث...</p>`;
 
-        if (!Array.isArray(data) || data.length === 0) {
-          resultDiv.innerHTML = "<p class='text-yellow-300'>لا توجد نتائج.</p>";
+      try {
+        const response = await fetch(`/api/proxy?unique=${encodeURIComponent(unique)}`);
+        if (!response.ok) throw new Error('فشل في جلب البيانات');
+
+        const data = await response.json();
+
+        if (!data.trips || data.trips.length === 0) {
+          resultContainer.innerHTML = `<p class="empty">🚫 لا توجد نتائج.</p>`;
           return;
         }
 
-        resultDiv.innerHTML = data
-          .map(
-            (item) => `
-          <div class="bg-gray-800 p-4 rounded-lg shadow-md fade-in">
-            <p><strong>رقم السيارة:</strong> ${item.truck_number || "—"}</p>
-            <p><strong>اسم السائق:</strong> ${item.driver_name || "—"}</p>
-            <p><strong>رقم الحاوية:</strong> ${item.container_number_export || "—"}</p>
-            <p><strong>تاريخ دخول السونار:</strong> ${item.sonar_entry_date || "—"}</p>
-            <a href="sonar.html?url=${encodeURIComponent(item.sonar_image_url || "")}" target="_blank" class="inline-block mt-2 text-blue-400 underline">عرض صورة السونار</a>
-          </div>
-        `
-          )
-          .join("");
-      } catch (err) {
-        resultDiv.innerHTML = "<p class='text-red-500'>حدث خطأ أثناء جلب البيانات.</p>";
-        console.error(err);
+        const html = data.trips.map(trip => {
+          const hasSonar = trip.sonarData?.manifests?.length > 0;
+          const sonarDate = trip.sonarData?.manifests?.[0]?.sonarPictureDayTime;
+          return `
+            <div class="results" style="margin-bottom: 1rem;">
+              <p class="result-item"><strong>🚛 رقم السيارة:</strong> ${trip.truck_number || 'غير متوفر'}</p>
+              <p class="result-item"><strong>🧍‍♂️ السائق:</strong> ${trip.driver || 'غير متوفر'}</p>
+              <p class="result-item"><strong>📦 رقم الحاوية:</strong> ${trip.container_number || 'غير متوفر'}</p>
+              <p class="result-item"><strong>🚚 اسم المندوب:</strong> ${trip.transportation_agent || 'غير متوفر'}</p>
+              ${sonarDate ? `<p class="result-item"><strong>📅 تاريخ دخول السونار:</strong> ${new Date(sonarDate).toLocaleString('ar-EG')}</p>` : ''}
+              <p class="result-item" style="color: ${hasSonar ? '#22c55e' : '#ef4444'}; font-weight:bold;">${hasSonar ? '✅ بيها سونار' : '🚫 بدون سونار'}</p>
+            </div>
+          `;
+        }).join('');
+
+        resultContainer.innerHTML = html;
+
+      } catch (error) {
+        resultContainer.innerHTML = `<p class="error">⚠️ حدث خطأ: ${error.message}</p>`;
       }
     }
   </script>
 </body>
-
 </html>
