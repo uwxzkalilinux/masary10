@@ -2,76 +2,37 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>تسجيل الدخول - Supabase</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
-  <style>
-    body { font-family: 'Cairo', sans-serif; }
-  </style>
+  <title>تسجيل الدخول</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-
-  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm">
-    <h1 class="text-2xl font-bold mb-6 text-center">تسجيل الدخول</h1>
-
-    <form id="loginForm" class="space-y-4">
-      <input type="email" id="email" placeholder="البريد الإلكتروني" required
-             class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <input type="password" id="password" placeholder="كلمة المرور" required
-             class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
-      <button type="submit" 
-              class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
-        دخول
-      </button>
-    </form>
-
-    <p id="message" class="mt-4 text-center text-red-600"></p>
-  </div>
+<body style="text-align: center;">
+  <h2>تسجيل الدخول</h2>
+  <input type="email" id="email" placeholder="الإيميل"><br>
+  <input type="password" id="password" placeholder="كلمة السر"><br>
+  <button onclick="login()">دخول</button>
+  <p id="message"></p>
 
   <script>
-    // إعداد supabase مع رابط المشروع والمفتاح العام فقط (publishable)
     const supabaseUrl = 'https://xioxpdhdsphtclicicyn.supabase.co';
-    const supabaseKey = 'sb_publishable_JExJRLGmPPl-yTPa4m6Isw_LpU7OlHG'; // المفتاح العلني
+    const supabaseKey = 'sb_publishable_JExJRLGmPPl-yTPa4m6Isw_LpU7OlHG';
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    const form = document.getElementById('loginForm');
-    const message = document.getElementById('message');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      message.textContent = '';
-
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-
-      if (!email || !password) {
-        message.textContent = "الرجاء تعبئة جميع الحقول";
-        return;
-      }
-
-      // محاولة تسجيل الدخول عبر Supabase
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
 
       if (error) {
-        message.textContent = "خطأ في تسجيل الدخول: " + error.message;
-        return;
+        document.getElementById("message").innerText = "خطأ في تسجيل الدخول: " + error.message;
+      } else {
+        document.getElementById("message").innerText = "تم تسجيل الدخول بنجاح ✅";
+        // إعادة توجيه بعد نجاح الدخول
+        window.location.href = "index.html";
       }
-
-      if (data?.user) {
-        message.style.color = 'green';
-        message.textContent = "تم تسجيل الدخول بنجاح! جاري تحويلك...";
-        // تخزين بيانات الجلسة في localStorage (حسب الحاجة)
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userId', data.user.id);
-
-        // تحويل المستخدم للصفحة الرئيسية (index.html)
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 1500);
-      }
-    });
+    }
   </script>
 </body>
 </html>
