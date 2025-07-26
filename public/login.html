@@ -25,39 +25,44 @@
         دخول
       </button>
     </form>
+    <!-- رسالة الخطأ أو النجاح -->
+    <div id="message" class="text-center mt-4 font-semibold"></div>
     <p class="text-sm text-center mt-6 text-gray-500 dark:text-gray-400">تم الإنشاء بواسطة <strong>علي ناصر</strong></p>
   </div>
 
   <script>
     // إعداد supabase
     const supabaseUrl = 'https://xioxpdhdsphtclicicyn.supabase.co';
-    const supabaseKey = 'sb_publishable_JExJRLGmPPl-yTPa4m6Isw_LpU7OlHG';  // المفتاح العام (Publishable Key)
+    const supabaseKey = 'sb_publishable_JExJRLGmPPl-yTPa4m6Isw_LpU7OlHG';
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    const messageDiv = document.getElementById('message');
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      messageDiv.textContent = '';  // مسح الرسالة القديمة
+      messageDiv.classList.remove('text-green-600', 'text-red-600');
+
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
 
-      // محاولة تسجيل الدخول عبر Supabase
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
-        alert("فشل تسجيل الدخول: " + error.message);
+        messageDiv.textContent = "❌ فشل تسجيل الدخول: " + error.message;
+        messageDiv.classList.add('text-red-600');
         return;
       }
 
-      console.log("تسجيل الدخول ناجح:", data);
+      messageDiv.textContent = "✅ تم تسجيل الدخول بنجاح!";
+      messageDiv.classList.add('text-green-600');
 
-      // حفظ حالة الدخول
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userId', data.user.id);
 
-      // توليد Device Fingerprint بسيط (يمكن تحسينه لاحقاً)
       const deviceFingerprint = navigator.userAgent + navigator.language + screen.width + screen.height;
 
-      // تسجيل الجهاز أو التنبيه إذا جديد
       fetch('/api/checkDevice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,11 +71,10 @@
       .then(res => res.json())
       .then(res => {
         if (res.isNewDevice) alert('تم تسجيل الدخول من جهاز جديد!');
-        window.location.href = 'index.html';  // تحويل الصفحة بعد نجاح الدخول
+        setTimeout(() => window.location.href = 'index.html', 1000);
       })
       .catch(() => {
-        // حتى لو فشل التحقق من الجهاز، نسمح بالدخول
-        window.location.href = 'index.html';
+        setTimeout(() => window.location.href = 'index.html', 1000);
       });
     });
   </script>
