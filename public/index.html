@@ -7,7 +7,11 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
-  <style> body { font-family: 'Cairo', sans-serif; } </style>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+    }
+  </style>
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-slate-100 to-purple-200 min-h-screen flex flex-col items-center justify-start py-10 px-4">
 
@@ -49,6 +53,7 @@
   </div>
 
   <script>
+    // تحقق من تسجيل الدخول
     document.addEventListener('DOMContentLoaded', () => {
       if (localStorage.getItem('isLoggedIn') !== 'true') {
         window.location.href = 'login.html';
@@ -57,7 +62,6 @@
 
     function logout() {
       localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('userId');
       window.location.href = 'login.html';
     }
 
@@ -71,7 +75,7 @@
       withSonarCol.innerHTML = '<h2 class="text-2xl font-extrabold text-green-600 mb-4">✅ بيها سونار</h2>';
       withoutSonarCol.innerHTML = '<h2 class="text-2xl font-extrabold text-red-600 mb-4">🚫 بدون سونار</h2>';
       stats.textContent = "";
-
+      
       if (!uniqueId) {
         stats.textContent = "يرجى إدخال الرقم الموحد.";
         return;
