@@ -6,7 +6,7 @@
   <title>تسجيل الدخول</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: 'Cairo', sans-serif; }
   </style>
@@ -29,9 +29,9 @@
   </div>
 
   <script>
-    // إعداد supabase
+    // إنشاء عميل Supabase
     const supabaseUrl = 'https://xioxpdhdsphtclicicyn.supabase.co';
-    const supabaseKey = 'sb_publishable_JExJRLGmPPl-yTPa4m6Isw_LpU7OlHG';  // ضع هنا المفتاح الخاص بك
+    const supabaseKey = 'sb_publishable_JExJRLGmPPl-yTPa4m6Isw_LpU7OlHG';
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -47,14 +47,13 @@
         return;
       }
 
-      // حفظ حالة الدخول
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userId', data.user.id);
 
-      // توليد Device Fingerprint (بسيط مثال)
+      // توليد بصمة الجهاز (بسيطة)
       const deviceFingerprint = navigator.userAgent + navigator.language + screen.width + screen.height;
 
-      // تسجيل الجهاز أو التنبيه إذا جديد
+      // تحقق من الجهاز الجديد (تحتاج أن تبني API endpoint خاص بك)
       fetch('/api/checkDevice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
