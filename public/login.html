@@ -4,71 +4,54 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>تسجيل الدخول</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   </head>
   <body class="bg-gray-100 flex items-center justify-center h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+
+    <div class="bg-white p-8 rounded-lg shadow-md w-96">
       <h2 class="text-2xl font-bold mb-6 text-center">تسجيل الدخول</h2>
       <form id="login-form" class="space-y-4">
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700">البريد الإلكتروني</label>
-          <input
-            type="email"
-            id="email"
-            required
-            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-200"
-          />
+          <label for="email" class="block mb-1">البريد الإلكتروني</label>
+          <input type="email" id="email" class="w-full border rounded px-3 py-2" required />
         </div>
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700">كلمة المرور</label>
-          <input
-            type="password"
-            id="password"
-            required
-            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-200"
-          />
+          <label for="password" class="block mb-1">كلمة المرور</label>
+          <input type="password" id="password" class="w-full border rounded px-3 py-2" required />
         </div>
-        <button
-          type="submit"
-          class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
-        >
-          تسجيل الدخول
-        </button>
-        <p id="error" class="text-red-500 text-sm mt-2 hidden"></p>
+        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded">تسجيل الدخول</button>
       </form>
+      <p id="error" class="text-red-500 text-sm mt-4 text-center"></p>
     </div>
 
     <script>
-      const supabase = supabase.createClient(
-        "https://xioxpdhdsphtclicicyn.supabase.co",
-        "sb_publishable_JExJRLGmPPl-yTPa4m6Isw_LpU7OlHG"
-      );
+      const SUPABASE_URL = "https://xioxpdhdsphtclicicyn.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_JExJRLGmPPl-yTPa4m6Isw_LpU7OlHG";
 
-      const form = document.getElementById("login-form");
-      const errorMsg = document.getElementById("error");
+      const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      form.addEventListener("submit", async (e) => {
+      document.getElementById("login-form").addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value.trim();
+        const errorMsg = document.getElementById("error");
+        errorMsg.textContent = "";
 
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
-          password,
+          password
         });
 
         if (error) {
+          console.error("Login error:", error);
           errorMsg.textContent = "فشل تسجيل الدخول: " + error.message;
-          errorMsg.classList.remove("hidden");
-        } else {
-          // تسجيل دخول ناجح - ننتقل للصفحة الرئيسية
-          window.location.href = "index.html";
+          return;
         }
+
+        console.log("Login success:", data);
+        window.location.href = "index.html"; // عدلها إذا تريد تنقل لصفحة ثانية
       });
     </script>
   </body>
