@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>تسجيل الدخول</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   </head>
   <body class="bg-gray-100 flex items-center justify-center h-screen">
 
@@ -29,7 +29,7 @@
       const SUPABASE_URL = "https://xioxpdhdsphtclicicyn.supabase.co";
       const SUPABASE_KEY = "sb_publishable_JExJRLGmPPl-yTPa4m6Isw_LpU7OlHG";
 
-      const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
       document.getElementById("login-form").addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -39,7 +39,7 @@
         const errorMsg = document.getElementById("error");
         errorMsg.textContent = "";
 
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
           email,
           password
         });
@@ -51,7 +51,7 @@
         }
 
         console.log("Login success:", data);
-        window.location.href = "index.html"; // عدلها إذا تريد تنقل لصفحة ثانية
+        window.location.href = "index.html";
       });
     </script>
   </body>
