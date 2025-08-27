@@ -6,17 +6,17 @@
   <style>
     body {
       margin: 0;
-      background: #0d0d0d;
-      color: #0f0;
+      background: #0a0a0f;
+      color: #00ff99;
       font-family: monospace;
       overflow-x: hidden;
     }
 
     /* الرادار */
     .radar {
-      width: 200px;
-      height: 200px;
-      border: 3px solid #0f0;
+      width: 220px;
+      height: 220px;
+      border: 4px solid #00ff99;
       border-radius: 50%;
       margin: 20px auto;
       position: relative;
@@ -25,7 +25,7 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      background: conic-gradient(rgba(0,255,0,0.3), transparent 70%);
+      background: conic-gradient(rgba(0,255,153,0.3), transparent 70%);
       transform-origin: center;
       transform: rotate(0deg);
     }
@@ -41,24 +41,24 @@
     #uniqueId {
       display: block;
       margin: 0 auto 10px;
-      padding: 10px 20px;
-      font-size: 18px;
-      border-radius: 10px;
-      border: 1px solid #0f0;
-      background: #000;
-      color: #0f0;
+      padding: 12px 20px;
+      font-size: 20px;
+      border-radius: 12px;
+      border: 2px solid #00ff99;
+      background: #0a0a0f;
+      color: #00ff99;
       width: 50%;
       text-align: center;
     }
     #searchBtn {
       display: block;
-      margin: 0 auto 30px;
-      padding: 10px 20px;
-      font-size: 18px;
-      background: #0f0;
-      color: #000;
+      margin: 0 auto 20px;
+      padding: 12px 20px;
+      font-size: 20px;
+      background: #00ff99;
+      color: #0a0a0f;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
     }
 
@@ -72,14 +72,41 @@
     .column {
       width: 48%;
       min-height: 300px;
-      background: rgba(0,0,0,0.4);
-      border: 1px solid #0f0;
-      border-radius: 10px;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid #00ff99;
+      border-radius: 12px;
       padding: 10px;
       overflow-y: auto;
+      position: relative;
+      z-index: 1;
     }
 
-    /* المطر */
+    /* بطاقة البيانات */
+    .card {
+      background: rgba(0,0,0,0.8);
+      border: 1px solid #00ff99;
+      padding: 12px;
+      margin: 6px 0;
+      border-radius: 8px;
+      font-size: 18px;
+    }
+    .card p {
+      margin: 3px 0;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+
+    #stats {
+      text-align: center;
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
+    /* مطر / شلال */
     canvas {
       position: fixed;
       top: 0;
@@ -87,24 +114,7 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: -1;
-    }
-
-    /* بطاقة البيانات */
-    .card {
-      background: rgba(0,0,0,0.8);
-      border: 1px solid #0f0;
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 5px;
-    }
-    .card p {
-      margin: 2px 0;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 10px;
+      z-index: 0;
     }
 
   </style>
@@ -117,6 +127,8 @@
   <input type="text" id="uniqueId" placeholder="Enter Unique ID">
   <button id="searchBtn">Search</button>
 
+  <div id="stats">Driver Stats will appear here</div>
+
   <div class="columns">
     <div class="column" id="withSonar">
       <h2>With Sonar ✅</h2>
@@ -126,7 +138,7 @@
     </div>
   </div>
 
-  <canvas id="rain"></canvas>
+  <canvas id="waterfall"></canvas>
 
   <script>
     // تحقق تسجيل الدخول
@@ -138,6 +150,7 @@
     const searchBtn = document.getElementById("searchBtn");
     const withSonarCol = document.getElementById("withSonar");
     const withoutSonarCol = document.getElementById("withoutSonar");
+    const statsDiv = document.getElementById("stats");
 
     searchBtn.addEventListener("click", async () => {
       const uniqueId = document.getElementById("uniqueId").value.trim();
@@ -147,6 +160,7 @@
 
       withSonarCol.innerHTML = "<h2>With Sonar ✅</h2>";
       withoutSonarCol.innerHTML = "<h2>Without Sonar 🚫</h2>";
+      statsDiv.textContent = "";
 
       try {
         const response = await fetch(`/api/proxy?unique=${encodeURIComponent(uniqueId)}`);
@@ -154,6 +168,8 @@
 
         const data = await response.json();
         const trips = data.trips || [];
+
+        let withSonarCount = 0, withoutSonarCount = 0;
 
         trips.forEach(trip => {
           const hasSonar = trip.sonarData?.manifests?.length > 0;
@@ -176,43 +192,64 @@
 
           if(hasSonar) {
             withSonarCol.appendChild(card);
+            withSonarCount++;
           } else {
             withoutSonarCol.appendChild(card);
+            withoutSonarCount++;
           }
         });
 
+        statsDiv.textContent = `Total: ${trips.length} | With Sonar: ${withSonarCount} | Without Sonar: ${withoutSonarCount}`;
+
       } catch(err) {
-        alert("Error: " + err.message);
+        statsDiv.textContent = "Error: " + err.message;
       } finally {
         sweep.classList.remove("rotate");
       }
     });
 
-    // مطر الأكواد
-    const canvas = document.getElementById("rain");
+    // شلال مائي
+    const canvas = document.getElementById("waterfall");
     const ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    const drops = [];
     const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const fontSize = 20;
-    const columns = canvas.width / fontSize;
-    const drops = Array(Math.floor(columns)).fill(1);
+    for(let i=0;i<200;i++){
+      drops.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        speed: Math.random()*4 + 2,
+        text: letters[Math.floor(Math.random()*letters.length)]
+      });
+    }
 
-    function draw() {
+    function drawWaterfall(){
       ctx.fillStyle = "rgba(0,0,0,0.05)";
       ctx.fillRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle = "#0f0";
-      ctx.font = fontSize + "px monospace";
 
-      for(let i=0;i<drops.length;i++){
-        const text = letters[Math.floor(Math.random()*letters.length)];
-        ctx.fillText(text,i*fontSize,drops[i]*fontSize);
-        if(drops[i]*fontSize>canvas.height && Math.random()>0.975) drops[i]=0;
-        drops[i]++;
-      }
+      ctx.fillStyle = "#00cfff";
+      ctx.font = "20px monospace";
+
+      drops.forEach(d => {
+        ctx.fillText(d.text,d.x,d.y);
+        d.y += d.speed;
+        if(d.y>canvas.height) {
+          d.y = 0;
+          d.x = Math.random()*canvas.width;
+          d.text = letters[Math.floor(Math.random()*letters.length)];
+        }
+      });
+
+      requestAnimationFrame(drawWaterfall);
     }
-    setInterval(draw,50);
+    drawWaterfall();
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
   </script>
 </body>
 </html>
