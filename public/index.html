@@ -1,255 +1,205 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <title>Trip Info Radar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Truck Trip Info</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      margin: 0;
-      background: #0a0a0f;
-      color: #00ff99;
-      font-family: monospace;
+      font-family: 'Roboto Mono', monospace;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #fff;
       overflow-x: hidden;
-    }
-
-    /* الرادار */
-    .radar {
-      width: 220px;
-      height: 220px;
-      border: 4px solid #00ff99;
-      border-radius: 50%;
-      margin: 20px auto;
       position: relative;
     }
-    .sweep {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: conic-gradient(rgba(0,255,153,0.3), transparent 70%);
-      transform-origin: center;
-      transform: rotate(0deg);
-    }
-    .rotate {
-      animation: spin 2s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* البحث */
-    #uniqueId {
-      display: block;
-      margin: 0 auto 10px;
-      padding: 12px 20px;
-      font-size: 20px;
-      border-radius: 12px;
-      border: 2px solid #00ff99;
-      background: #0a0a0f;
-      color: #00ff99;
-      width: 50%;
-      text-align: center;
-    }
-    #searchBtn {
-      display: block;
-      margin: 0 auto 20px;
-      padding: 12px 20px;
-      font-size: 20px;
-      background: #00ff99;
-      color: #0a0a0f;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-    }
-
-    /* الأعمدة */
-    .columns {
-      display: flex;
-      justify-content: space-between;
-      width: 90%;
-      margin: 0 auto;
-    }
-    .column {
-      width: 48%;
-      min-height: 300px;
-      background: rgba(0,0,0,0.6);
-      border: 1px solid #00ff99;
-      border-radius: 12px;
-      padding: 10px;
-      overflow-y: auto;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* بطاقة البيانات */
-    .card {
-      background: rgba(0,0,0,0.8);
-      border: 1px solid #00ff99;
-      padding: 12px;
-      margin: 6px 0;
-      border-radius: 8px;
-      font-size: 18px;
-    }
-    .card p {
-      margin: 3px 0;
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 10px;
-      font-size: 22px;
-    }
-
-    #stats {
-      text-align: center;
-      font-size: 22px;
-      margin-bottom: 20px;
-    }
-
-    /* مطر / شلال */
-    canvas {
+    /* Waterfall effect */
+    .waterfall {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      pointer-events: none;
       z-index: 0;
+      overflow: hidden;
     }
-
+    .drop {
+      position: absolute;
+      width: 3px;
+      height: 20px;
+      background: rgba(0, 255, 255, 0.3);
+      animation: flow 3s linear infinite;
+    }
+    @keyframes flow {
+      0% { transform: translateY(-20px); opacity: 0; }
+      10% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+    .column-title {
+      font-size: 1.75rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    .card {
+      background: rgba(30, 41, 59, 0.85);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      z-index: 2;
+      position: relative;
+    }
+    #radar {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 4px solid #0ff;
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 15px #0ff;
+      display: none;
+      animation: radarPulse 1.5s infinite;
+      z-index: 3;
+    }
+    @keyframes radarPulse {
+      0% { box-shadow: 0 0 10px #0ff; }
+      50% { box-shadow: 0 0 25px #0ff; }
+      100% { box-shadow: 0 0 10px #0ff; }
+    }
+    input, button {
+      z-index: 3;
+    }
   </style>
 </head>
 <body>
-  <div class="radar">
-    <div class="sweep" id="sweep"></div>
-  </div>
+  <!-- Waterfall effect -->
+  <div class="waterfall" id="waterfall"></div>
 
-  <input type="text" id="uniqueId" placeholder="Enter Unique ID">
-  <button id="searchBtn">Search</button>
+  <div class="container mx-auto px-6 py-10 relative z-10">
+    <!-- Radar -->
+    <div id="radar"></div>
 
-  <div id="stats">Driver Stats will appear here</div>
-
-  <div class="columns">
-    <div class="column" id="withSonar">
-      <h2>With Sonar ✅</h2>
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-4xl font-bold text-cyan-400 drop-shadow-lg">🚚 Truck Trip Info</h1>
+      <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded-xl shadow-lg">
+        Logout
+      </button>
     </div>
-    <div class="column" id="withoutSonar">
-      <h2>Without Sonar 🚫</h2>
+
+    <!-- Search -->
+    <div class="bg-gray-800 p-8 rounded-3xl shadow-2xl mb-6">
+      <div class="flex gap-4 mb-6">
+        <input id="uniqueId" placeholder="Enter unique number" class="flex-1 border-2 border-cyan-500 rounded-xl px-5 py-3 text-lg focus:outline-none focus:ring-4 focus:ring-cyan-400 shadow-inner text-black" />
+      </div>
+      <button onclick="fetchData()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-3 rounded-2xl text-lg font-semibold shadow-lg">
+        🚀 Fetch Info
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div id="stats" class="text-center text-xl font-bold text-white mb-6"></div>
+
+    <!-- Columns -->
+    <div class="grid md:grid-cols-2 gap-6">
+      <div id="withoutSonarColumn">
+        <div class="column-title text-red-500">🚫 Without Sonar</div>
+      </div>
+      <div id="withSonarColumn">
+        <div class="column-title text-green-400">✅ With Sonar</div>
+      </div>
     </div>
   </div>
-
-  <canvas id="waterfall"></canvas>
 
   <script>
-    // تحقق تسجيل الدخول
-    if(localStorage.getItem('isLoggedIn') !== 'true') {
+    // Generate waterfall drops
+    const waterfall = document.getElementById('waterfall');
+    const dropCount = 100;
+    for (let i = 0; i < dropCount; i++) {
+      const drop = document.createElement('div');
+      drop.className = 'drop';
+      drop.style.left = Math.random() * 100 + 'vw';
+      drop.style.animationDelay = Math.random() * 5 + 's';
+      drop.style.height = 10 + Math.random() * 20 + 'px';
+      waterfall.appendChild(drop);
+    }
+
+    // Login check
+    document.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('isLoggedIn') !== 'true') {
+        window.location.href = 'login.html';
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('isLoggedIn');
       window.location.href = 'login.html';
     }
 
-    const sweep = document.getElementById("sweep");
-    const searchBtn = document.getElementById("searchBtn");
-    const withSonarCol = document.getElementById("withSonar");
-    const withoutSonarCol = document.getElementById("withoutSonar");
-    const statsDiv = document.getElementById("stats");
-
-    searchBtn.addEventListener("click", async () => {
+    async function fetchData() {
       const uniqueId = document.getElementById("uniqueId").value.trim();
-      if(!uniqueId) return alert("Please enter a unique ID.");
+      const stats = document.getElementById("stats");
+      const withSonarCol = document.getElementById("withSonarColumn");
+      const withoutSonarCol = document.getElementById("withoutSonarColumn");
+      const radar = document.getElementById('radar');
 
-      sweep.classList.add("rotate");
+      stats.textContent = "";
+      withSonarCol.innerHTML = '<div class="column-title text-green-400">✅ With Sonar</div>';
+      withoutSonarCol.innerHTML = '<div class="column-title text-red-500">🚫 Without Sonar</div>';
 
-      withSonarCol.innerHTML = "<h2>With Sonar ✅</h2>";
-      withoutSonarCol.innerHTML = "<h2>Without Sonar 🚫</h2>";
-      statsDiv.textContent = "";
+      if (!uniqueId) {
+        stats.textContent = "Please enter a unique number.";
+        return;
+      }
+
+      radar.style.display = 'block'; // Show radar
 
       try {
         const response = await fetch(`/api/proxy?unique=${encodeURIComponent(uniqueId)}`);
-        if(!response.ok) throw new Error("Failed to fetch data");
+        if (!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
 
         const data = await response.json();
         const trips = data.trips || [];
+        if (trips.length === 0) {
+          stats.textContent = "🚫 No data found for the entered number.";
+          return;
+        }
 
-        let withSonarCount = 0, withoutSonarCount = 0;
+        let withSonar = 0, withoutSonar = 0;
 
         trips.forEach(trip => {
           const hasSonar = trip.sonarData?.manifests?.length > 0;
           const manifest = trip.sonarData?.manifests?.[0];
-          let sonarDate = "N/A";
-          if(manifest?.sonarPictureDayTime){
-            const d = new Date(manifest.sonarPictureDayTime);
-            sonarDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-          }
+          let sonarDate = manifest?.sonarPictureDayTime ? new Date(manifest.sonarPictureDayTime).toLocaleString() : "N/A";
 
-          const card = document.createElement("div");
-          card.className = "card";
+          const card = document.createElement('div');
+          card.className = 'card text-white';
           card.innerHTML = `
-            <p><strong>Driver:</strong> ${trip.driver_name || "N/A"}</p>
-            <p><strong>Container:</strong> ${trip.container_number || "N/A"}</p>
-            <p><strong>Agent:</strong> ${trip.transportation_agent || "N/A"}</p>
-            <p><strong>Berth:</strong> ${trip.berth || "N/A"}</p>
+            <p><strong>Driver:</strong> ${trip.driver_name || 'N/A'}</p>
+            <p><strong>Container:</strong> ${trip.container_number || 'N/A'}</p>
+            <p><strong>Agent:</strong> ${trip.transportation_agent || 'N/A'}</p>
+            <p><strong>Berth:</strong> ${trip.berth || 'N/A'}</p>
             <p><strong>Sonar Date:</strong> ${sonarDate}</p>
           `;
 
-          if(hasSonar) {
+          if (hasSonar) {
             withSonarCol.appendChild(card);
-            withSonarCount++;
+            withSonar++;
           } else {
             withoutSonarCol.appendChild(card);
-            withoutSonarCount++;
+            withoutSonar++;
           }
         });
 
-        statsDiv.textContent = `Total: ${trips.length} | With Sonar: ${withSonarCount} | Without Sonar: ${withoutSonarCount}`;
-
-      } catch(err) {
-        statsDiv.textContent = "Error: " + err.message;
-      } finally {
-        sweep.classList.remove("rotate");
+        stats.textContent = `📊 Total: ${trips.length} — ✅ ${withSonar} | 🚫 ${withoutSonar}`;
+      } catch (error) {
+        stats.textContent = "⚠️ Error fetching data: " + error.message;
       }
-    });
-
-    // شلال مائي
-    const canvas = document.getElementById("waterfall");
-    const ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const drops = [];
-    const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    for(let i=0;i<200;i++){
-      drops.push({
-        x: Math.random()*canvas.width,
-        y: Math.random()*canvas.height,
-        speed: Math.random()*4 + 2,
-        text: letters[Math.floor(Math.random()*letters.length)]
-      });
     }
-
-    function drawWaterfall(){
-      ctx.fillStyle = "rgba(0,0,0,0.05)";
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-
-      ctx.fillStyle = "#00cfff";
-      ctx.font = "20px monospace";
-
-      drops.forEach(d => {
-        ctx.fillText(d.text,d.x,d.y);
-        d.y += d.speed;
-        if(d.y>canvas.height) {
-          d.y = 0;
-          d.x = Math.random()*canvas.width;
-          d.text = letters[Math.floor(Math.random()*letters.length)];
-        }
-      });
-
-      requestAnimationFrame(drawWaterfall);
-    }
-    drawWaterfall();
-
-    window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
   </script>
 </body>
 </html>
