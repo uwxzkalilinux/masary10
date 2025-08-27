@@ -11,6 +11,19 @@
     #galaxy-container { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
     .planet { position:absolute; border-radius:50%; background: rgba(255,255,255,0.7); width:4px; height:4px; animation: move 20s linear infinite; }
     @keyframes move { 0% {transform: translateY(-100px);} 100% {transform: translateY(120vh);} }
+
+    /* Radar */
+    #radar {
+      position: absolute; top:20px; right:20px; width:120px; height:120px; border:3px solid #0f0;
+      border-radius:50%; z-index:5; overflow:hidden; transform: rotate(0deg);
+    }
+    #radar-sweep {
+      position:absolute; width:100%; height:100%; background: rgba(0,255,0,0.2);
+      clip-path: polygon(50% 50%, 0% 0%, 100% 0%); transform-origin:50% 50%;
+    }
+    .rotate { animation: radar-spin 2s linear infinite; }
+    @keyframes radar-spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+
     .column { position: relative; z-index: 10; }
     h1,h2,p,strong { z-index:10; position:relative; }
   </style>
@@ -18,10 +31,15 @@
 <body>
   <div id="galaxy-container"></div>
 
+  <!-- Radar -->
+  <div id="radar">
+    <div id="radar-sweep"></div>
+  </div>
+
   <div class="w-full max-w-6xl mx-auto py-10 px-4 flex flex-col items-center">
     <!-- Header -->
     <div class="flex justify-between items-center w-full mb-6">
-      <h1 class="text-4xl font-extrabold text-green-400 drop-shadow-lg"> Track Information Dashboard</h1>
+      <h1 class="text-4xl font-extrabold text-green-400 drop-shadow-lg">🚚 Track Information Dashboard</h1>
       <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">Logout</button>
     </div>
 
@@ -48,7 +66,7 @@
   </div>
 
   <script>
-    // إنشاء galaxy animation عند التحميل مرة واحدة
+    // Galaxy animation
     const galaxyContainer = document.getElementById("galaxy-container");
     for(let i=0;i<150;i++){
       const planet = document.createElement('div');
@@ -77,13 +95,17 @@
       const stats = document.getElementById("stats");
       const withSonarCol = document.getElementById("withSonarColumn");
       const withoutSonarCol = document.getElementById("withoutSonarColumn");
+      const radarSweep = document.getElementById("radar-sweep");
 
-      // مسح النتائج القديمة فقط، لا تمسح الانيميشن
+      // Start radar rotation
+      radarSweep.classList.add("rotate");
+
+      // Clear old results
       withSonarCol.innerHTML = '<h2 class="text-2xl font-extrabold text-green-400 mb-4">✅ With Sonar</h2>';
       withoutSonarCol.innerHTML = '<h2 class="text-2xl font-extrabold text-red-500 mb-4">🚫 Without Sonar</h2>';
       stats.textContent = '';
 
-      if(!uniqueId){ stats.textContent = "Please enter a unique number."; return; }
+      if(!uniqueId){ stats.textContent = "Please enter a unique number."; radarSweep.classList.remove("rotate"); return; }
 
       try {
         const response = await fetch(`/api/proxy?unique=${encodeURIComponent(uniqueId)}`);
@@ -91,7 +113,7 @@
         const data = await response.json();
         const trips = data.trips || [];
 
-        if(trips.length===0){ stats.textContent = "🚫 No data found."; return; }
+        if(trips.length===0){ stats.textContent = "🚫 No data found."; radarSweep.classList.remove("rotate"); return; }
 
         let withSonar=0, withoutSonar=0;
 
@@ -119,9 +141,11 @@
         });
 
         stats.textContent = `📊 Total: ${trips.length} — ✅ ${withSonar} | 🚫 ${withoutSonar}`;
-
       } catch(error){
         stats.textContent = "⚠️ Error: " + error.message;
+      } finally{
+        // Stop radar after 2 seconds to simulate search
+        setTimeout(()=> radarSweep.classList.remove("rotate"), 2000);
       }
     }
   </script>
