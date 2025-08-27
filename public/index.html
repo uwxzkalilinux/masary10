@@ -3,151 +3,200 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Track Information Dashboard</title>
+  <title>Trip Info Radar</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
   <style>
-    body { font-family: 'Roboto', sans-serif; background: radial-gradient(circle at 50% 50%, #0b0c1c, #1a1a2e); color: #fff; overflow-x: hidden; }
-    #galaxy-container { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
-    .planet { position:absolute; border-radius:50%; background: rgba(255,255,255,0.7); width:4px; height:4px; animation: move 20s linear infinite; }
-    @keyframes move { 0% {transform: translateY(-100px);} 100% {transform: translateY(120vh);} }
-
-    /* Radar */
-    #radar {
-      position: absolute; top:20px; right:20px; width:120px; height:120px; border:3px solid #0f0;
-      border-radius:50%; z-index:5; overflow:hidden; transform: rotate(0deg);
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: radial-gradient(circle at 50% 50%, #0f0c29, #302b63, #24243e);
+      overflow-x: hidden;
+      position: relative;
     }
-    #radar-sweep {
-      position:absolute; width:100%; height:100%; background: rgba(0,255,0,0.2);
-      clip-path: polygon(50% 50%, 0% 0%, 100% 0%); transform-origin:50% 50%;
+    .column {
+      max-height: 70vh;
+      overflow-y: auto;
     }
-    .rotate { animation: radar-spin 2s linear infinite; }
-    @keyframes radar-spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
-
-    .column { position: relative; z-index: 10; }
-    h1,h2,p,strong { z-index:10; position:relative; }
+    .radar {
+      width: 80px;
+      height: 80px;
+      border: 4px solid rgba(0,255,0,0.6);
+      border-radius: 50%;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 160px;
+      box-shadow: 0 0 20px rgba(0,255,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .radar::after {
+      content: '';
+      width: 6px;
+      height: 40px;
+      background: rgba(0,255,0,0.8);
+      position: absolute;
+      transform-origin: bottom center;
+      animation: rotateRadar 0s linear infinite;
+    }
+    @keyframes rotateRadar {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .galaxy {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      opacity: 0.8;
+      border-radius: 50%;
+      animation: fall linear infinite;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-10px); }
+      100% { transform: translateY(100vh); }
+    }
+    .card {
+      background: rgba(0,0,0,0.7);
+      color: #00ff99;
+    }
   </style>
 </head>
 <body>
-  <div id="galaxy-container"></div>
+  <!-- Galaxy background -->
+  <div class="galaxy" id="galaxy"></div>
 
-  <!-- Radar -->
-  <div id="radar">
-    <div id="radar-sweep"></div>
-  </div>
-
-  <div class="w-full max-w-6xl mx-auto py-10 px-4 flex flex-col items-center">
+  <div class="w-full max-w-6xl mx-auto pt-10 relative z-10">
     <!-- Header -->
     <div class="flex justify-between items-center w-full mb-6">
-      <h1 class="text-4xl font-extrabold text-green-400 drop-shadow-lg">🚚 Track Information Dashboard</h1>
-      <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">Logout</button>
+      <h1 class="text-4xl font-bold text-green-400 drop-shadow-md"> Trip Info System</h1>
+      <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded-xl shadow-lg">Logout</button>
     </div>
 
-    <!-- Search -->
-    <div class="w-full bg-gray-900 bg-opacity-70 p-8 rounded-3xl shadow-2xl backdrop-blur-md mb-6">
-      <div class="flex gap-4 mb-6">
-        <input id="uniqueId" class="flex-1 border-2 border-green-400 rounded-xl px-5 py-3 text-lg focus:outline-none focus:ring-4 focus:ring-green-500 shadow-inner bg-black text-white" placeholder="Enter unique number" />
+    <!-- Search Box -->
+    <div class="w-full bg-black/70 p-8 rounded-3xl shadow-2xl backdrop-blur-md bg-opacity-60 mb-12">
+      <div class="flex gap-4 mb-6 justify-center">
+        <input id="uniqueId" class="flex-1 border-2 border-green-500 rounded-xl px-5 py-3 text-lg focus:outline-none focus:ring-4 focus:ring-green-400 shadow-inner text-white bg-black/40" placeholder="Enter Unique Number" />
       </div>
-      <button onclick="fetchData()" class="w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white py-3 rounded-2xl text-lg font-semibold shadow-lg transition transform hover:scale-105">🚀 Fetch Data</button>
+      <div class="relative text-center">
+        <button id="searchBtn" onclick="fetchData()" class="relative z-20 w-48 bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-white py-3 rounded-2xl text-lg font-semibold shadow-lg">
+          Search
+        </button>
+      </div>
     </div>
+
+    <!-- Radar -->
+    <div class="radar" id="radar"></div>
 
     <!-- Stats -->
-    <div id="stats" class="text-center mb-6 text-lg font-bold text-white"></div>
+    <div id="stats" class="text-center mt-6 text-lg font-semibold text-white"></div>
 
-    <!-- Results Columns -->
-    <div class="grid md:grid-cols-2 gap-6 w-full">
-      <div id="withoutSonarColumn" class="column bg-gray-800 bg-opacity-50 rounded-3xl p-6 shadow-xl">
-        <h2 class="text-2xl font-extrabold text-red-500 mb-4">🚫 Without Sonar</h2>
+    <!-- Results -->
+    <div class="grid md:grid-cols-2 gap-6 mt-10 w-full">
+      <div class="column p-6 rounded-2xl shadow-xl" id="withoutSonarColumn">
+        <h2 class="text-2xl font-bold text-red-500 mb-4">🚫 Without Sonar</h2>
       </div>
-      <div id="withSonarColumn" class="column bg-gray-800 bg-opacity-50 rounded-3xl p-6 shadow-xl">
-        <h2 class="text-2xl font-extrabold text-green-400 mb-4">✅ With Sonar</h2>
+      <div class="column p-6 rounded-2xl shadow-xl" id="withSonarColumn">
+        <h2 class="text-2xl font-bold text-green-400 mb-4">✅ With Sonar</h2>
       </div>
     </div>
   </div>
 
   <script>
-    // Galaxy animation
-    const galaxyContainer = document.getElementById("galaxy-container");
-    for(let i=0;i<150;i++){
-      const planet = document.createElement('div');
-      planet.className = 'planet';
-      planet.style.width = (2+Math.random()*4)+'px';
-      planet.style.height = planet.style.width;
-      planet.style.left = Math.random()*100+'%';
-      planet.style.top = Math.random()*100+'%';
-      planet.style.animationDuration = (10+Math.random()*20)+'s';
-      planet.style.background = `rgba(${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},0.7)`;
-      galaxyContainer.appendChild(planet);
+    // Galaxy stars
+    const galaxy = document.getElementById('galaxy');
+    function createStar() {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * window.innerWidth + 'px';
+      star.style.top = Math.random() * -100 + 'px';
+      star.style.width = Math.random() * 3 + 1 + 'px';
+      star.style.height = star.style.width;
+      star.style.animationDuration = 3 + Math.random()*3 + 's';
+      galaxy.appendChild(star);
+      setTimeout(()=>{ galaxy.removeChild(star); }, 6000);
     }
+    setInterval(createStar, 100);
 
     // Login check
     document.addEventListener('DOMContentLoaded', () => {
-      if(localStorage.getItem('isLoggedIn') !== 'true') window.location.href = 'login.html';
+      if(localStorage.getItem('isLoggedIn') !== 'true'){
+        window.location.href='login.html';
+      }
     });
-
-    function logout() {
+    function logout(){
       localStorage.removeItem('isLoggedIn');
-      window.location.href = 'login.html';
+      window.location.href='login.html';
     }
 
-    async function fetchData() {
+    // Radar control
+    const radar = document.getElementById('radar');
+    let radarAnim = null;
+
+    async function fetchData(){
       const uniqueId = document.getElementById("uniqueId").value.trim();
       const stats = document.getElementById("stats");
       const withSonarCol = document.getElementById("withSonarColumn");
       const withoutSonarCol = document.getElementById("withoutSonarColumn");
-      const radarSweep = document.getElementById("radar-sweep");
 
-      // Start radar rotation
-      radarSweep.classList.add("rotate");
+      if(!uniqueId){
+        stats.textContent = "Please enter a Unique Number.";
+        return;
+      }
 
-      // Clear old results
-      withSonarCol.innerHTML = '<h2 class="text-2xl font-extrabold text-green-400 mb-4">✅ With Sonar</h2>';
-      withoutSonarCol.innerHTML = '<h2 class="text-2xl font-extrabold text-red-500 mb-4">🚫 Without Sonar</h2>';
-      stats.textContent = '';
+      // Clear previous results but keep galaxy animation
+      withSonarCol.innerHTML = '<h2 class="text-2xl font-bold text-green-400 mb-4">✅ With Sonar</h2>';
+      withoutSonarCol.innerHTML = '<h2 class="text-2xl font-bold text-red-500 mb-4">🚫 Without Sonar</h2>';
+      stats.textContent = "";
 
-      if(!uniqueId){ stats.textContent = "Please enter a unique number."; radarSweep.classList.remove("rotate"); return; }
+      // Start radar
+      radar.style.display = 'flex';
+      radarAnim = radar.querySelector('::after');
+      radar.querySelector('::after')?.style.animationDuration = '1.5s';
+      radar.querySelector('::after')?.style.animationPlayState = 'running';
+      radar.querySelector('::after')?.style.animationName = 'rotateRadar';
+      radar.querySelector('::after')?.style.animationTimingFunction = 'linear';
+      radar.querySelector('::after')?.style.animationIterationCount = 'infinite';
+      radar.style.borderColor = 'rgba(0,255,0,0.6)';
 
-      try {
+      try{
         const response = await fetch(`/api/proxy?unique=${encodeURIComponent(uniqueId)}`);
-        if(!response.ok) throw new Error(`Failed: ${response.status}`);
+        if(!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
         const data = await response.json();
         const trips = data.trips || [];
+        if(trips.length === 0){
+          stats.textContent = "🚫 No data found.";
+          return;
+        }
 
-        if(trips.length===0){ stats.textContent = "🚫 No data found."; radarSweep.classList.remove("rotate"); return; }
-
-        let withSonar=0, withoutSonar=0;
+        let withSonar = 0, withoutSonar = 0;
 
         trips.forEach(trip=>{
-          const hasSonar = trip.sonarData?.manifests?.length > 0;
+          const hasSonar = trip.sonarData?.manifests?.length>0;
           const manifest = trip.sonarData?.manifests?.[0];
-          let sonarDate = manifest?.sonarPictureDayTime ? new Date(manifest.sonarPictureDayTime).toLocaleString() : "N/A";
+
+          let sonarDate = "N/A";
+          if(manifest?.sonarPictureDayTime){
+            const d = new Date(manifest.sonarPictureDayTime);
+            sonarDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+          }
 
           const card = document.createElement('div');
-          card.className = 'bg-gray-900 bg-opacity-70 p-4 rounded-lg mb-3 text-white relative z-10 font-bold text-sm';
-          card.innerHTML = `
-            <p><strong>Driver:</strong> ${trip.driver_name || 'N/A'}</p>
-            <p><strong>Container:</strong> ${trip.container_number || 'N/A'}</p>
+          card.className='card p-4 mb-4 rounded-xl shadow-lg';
+          card.innerHTML=`
+            <p><strong>Driver Name:</strong> ${trip.driver_name || 'N/A'}</p>
+            <p><strong>Container Number:</strong> ${trip.container_number || 'N/A'}</p>
             <p><strong>Agent:</strong> ${trip.transportation_agent || 'N/A'}</p>
-            <p><strong>Berth:</strong> ${trip.berth || 'N/A'}</p>
-            <p><strong>Sonar Date:</strong> ${sonarDate}</p>
-          `;
-          if(hasSonar){
-            withSonarCol.appendChild(card);
-            withSonar++;
-          } else {
-            withoutSonarCol.appendChild(card);
-            withoutSonar++;
-          }
-        });
-
-        stats.textContent = `📊 Total: ${trips.length} — ✅ ${withSonar} | 🚫 ${withoutSonar}`;
-      } catch(error){
-        stats.textContent = "⚠️ Error: " + error.message;
-      } finally{
-        // Stop radar after 2 seconds to simulate search
-        setTimeout(()=> radarSweep.classList.remove("rotate"), 2000);
-      }
-    }
-  </script>
-</body>
-</html>
+            <p><strong>Berth:</
